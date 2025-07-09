@@ -15,8 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameTimerId, speedTimerId, fishGeneratorId, blockGeneratorId;
     let fishSpawnCount = 1; // 魚の初期生成数
     let lastFishSpawnSpeedIncrease = 5; // 魚の生成数を最後に増やした時のgameSpeed (初期値は最初のgameSpeed)
-    let currentFishGroupCount = 0; // 現在生成中の魚のグループ数 (今回は直接は使用しませんが、連なり制御のために保持)
-    let fishGroupMax = 3; // 魚が連なる最大数
     let fishGroupInterval = 100; // 魚が連なる際の生成間隔（ms）
 
     // 2段ジャンプのための変数
@@ -237,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // 魚の生成数と最後に生成数を増やした時のスピードをリセット
         fishSpawnCount = 1; 
         lastFishSpawnSpeedIncrease = 5;
-        currentFishGroupCount = 0; // グループ生成カウンターもリセット
         jumpCount = 0; // ジャンプ回数をリセット
 
         // ゲームの要素を初期化
@@ -246,6 +243,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // メインループを開始
         gameTimerId = setInterval(gameLoop, 20);
         document.addEventListener('keydown', control);
+        // ゲーム画面をタップ（クリック）したときにジャンプ
+        gameContainer.addEventListener('click', () => {
+            if (!isGameOver && jumpCount < MAX_JUMPS) {
+                jump();
+            }
+        });
+        // スマートフォンでのタッチ操作に対応（clickイベントで十分な場合もありますが、より確実に対応）
+        gameContainer.addEventListener('touchstart', (e) => {
+            // デフォルトのスクロール動作などを防ぐ
+            e.preventDefault(); 
+            if (!isGameOver && jumpCount < MAX_JUMPS) {
+                jump();
+            }
+        });
         
         // 制限時間のタイマー
         let timeLeft = 30;
@@ -282,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (gameSpeed - lastFishSpawnSpeedIncrease >= speedIncreaseThreshold) {
                     fishSpawnCount++;
                     lastFishSpawnSpeedIncrease = gameSpeed; // 最後に増やしたスピードを更新
-                    if (fishSpawnCount > 5) fishGroupMax = 5; // ある程度魚が増えたら、連なる魚の最大数も増やす
                 }
             }
         }, 4000); // 4秒ごとに加速
@@ -307,11 +317,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // 次のアイテム生成までの時間を調整
             // 基本生成間隔を短くして、連なり生成時間を考慮
             let baseDelay = 500; // 通常時の最低遅延
-            if (timeLeft <= 10) { // 残り10秒以下では、生成間隔をさらに短縮
+            let currenttimeLeft = parseInt(timeLeftDisplay.innerText); // timeLeftDisplayから現在の残り時間を取得
+            if (currenttimeLeft <= 10) { // 残り10秒以下では、生成間隔をさらに短縮
                 baseDelay = 200; // 例えば200msから700msの範囲
-            } else if (timeLeft <= 5) { // 残り5秒以下では、さらに短縮
+            } else if (currenttimeLeft <= 5) { // 残り5秒以下では、さらに短縮
                 baseDelay = 100; // 例えば100msから600msの範囲
-            } else if (timeLeft <= 2) { // 残り2秒以下では、ほぼ連打で出す
+            } else if (currenttimeLeft <= 2) { // 残り2秒以下では、ほぼ連打で出す
                 baseDelay = 50; // 例えば50msから550msの範囲
             }
             

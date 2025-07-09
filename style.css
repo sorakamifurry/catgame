@@ -13,41 +13,6 @@ body {
     overflow: hidden; /* ゲーム画面からはみ出た要素を隠します */
 }
 
-#score-board {
-    font-size: 24px;
-    margin-top: 10px;
-}
-
-#cat {
-    position: absolute; /* game-container内での絶対位置 */
-    width: 60px; /* 猫の画像の幅に合わせて調整 */
-    height: 60px; /* 猫の画像の高さに合わせて調整 */
-    /* ★ここから追加・修正★ */
-    background-image: url('cat.png'); /* 猫の画像ファイルへのパス */
-    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
-    background-repeat: no-repeat; /* 画像を繰り返さない */
-    /* ★ここまで追加・修正★ */
-    background-color: transparent; /* 背景色を透明にするか、削除 */
-    border: none; /* 枠線をなくすか、削除 */
-    left: 50px; /* 画面の左からの位置 */
-    bottom: 0px; /* 画面の下からの位置 */
-}
-
-.fish {
-    position: absolute;
-    width: 50px; /* 魚の画像の幅に合わせて調整 */
-    height: 30px; /* 魚の画像の高さに合わせて調整 */
-    /* ★ここから追加・修正★ */
-    background-image: url('fish.png'); /* 魚の画像ファイルへのパス */
-    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
-    background-repeat: no-repeat; /* 画像を繰り返さない */
-    /* ★ここまで追加・修正★ */
-    background-color: transparent; /* 背景色を透明にするか、削除 */
-    border: none; /* 枠線をなくすか、削除 */
-}
-
-/* style.css の一番下に追加してください */
-
 /* インフォメーションバーのスタイル */
 #info-bar {
     display: flex;
@@ -57,30 +22,38 @@ body {
     font-size: 24px;
 }
 
-/* ゲームオーバーメッセージのスタイル */
-#game-over-message {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 10px;
+/* 情報バー内の各要素のスタイル */
+#score-board, #control-info, #timer-board {
+    background-color: rgba(255, 255, 255, 0.7); /* 白っぽい半透明の背景 */
+    padding: 5px 10px;
+    border-radius: 5px;
+    flex-grow: 1; /* 各要素が利用可能なスペースを均等に占めるようにする */
     text-align: center;
-    font-size: 3em;
-    color: #E53935;
-    z-index: 100; /* 他の要素より手前に表示 */
+    margin: 0 5px; /* 各要素の間に少しスペースを空ける */
 }
 
-#game-over-message button {
-    font-size: 0.5em;
-    padding: 10px 20px;
-    cursor: pointer;
+#cat {
+    position: absolute; /* game-container内での絶対位置 */
+    width: 60px; /* 猫の画像の幅に合わせて調整 */
+    height: 60px; /* 猫の画像の高さに合わせて調整 */
+    background-image: url('cat.png'); /* 猫の画像ファイルへのパス */
+    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
+    background-repeat: no-repeat; /* 画像を繰り返さない */
+    background-color: transparent; /* 背景色を透明にする */
+    border: none; /* 枠線をなくす */
+    left: 50px; /* 画面の左からの位置 */
+    bottom: 0px; /* 画面の下からの位置 */
 }
 
-/* 隠すためのクラス */
-.hidden {
-    display: none;
+.fish {
+    position: absolute;
+    width: 50px; /* 魚の画像の幅に合わせて調整 */
+    height: 30px; /* 魚の画像の高さに合わせて調整 */
+    background-image: url('fish.png'); /* 魚の画像ファイルへのパス */
+    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
+    background-repeat: no-repeat; /* 画像を繰り返さない */
+    background-color: transparent; /* 背景色を透明にする */
+    border: none; /* 枠線をなくす */
 }
 
 /* 乗ることができるブロックのスタイル */
@@ -90,4 +63,35 @@ body {
     height: 20px;
     background-color: #6D4C41; /* 茶色 */
     border: 2px solid #3E2723;
+}
+
+/* ゲームオーバーメッセージのスタイル */
+#game-over-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8); /* 黒っぽい半透明の背景 */
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 3em; /* 大きな文字 */
+    z-index: 100; /* 他の要素より手前に表示 */
+}
+
+#game-over-message button {
+    font-size: 0.5em; /* 親要素の半分 */
+    padding: 10px 20px;
+    background-color: #4CAF50; /* 緑色のボタン */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+/* 隠すためのクラス */
+.hidden {
+    display: none;
 }
