@@ -95,3 +95,39 @@ body {
 .hidden {
     display: none;
 }
+
+/* 白い缶のスタイル */
+.can {
+    position: absolute;
+    width: 30px; /* 缶の幅 */
+    height: 40px; /* 缶の高さ */
+    background-image: url('whitecan.png'); /* 猫の画像ファイルへのパス */
+    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
+    background-repeat: no-repeat; /* 画像を繰り返さない */
+    background-color: transparent; /* 背景色を透明にする */
+    border: none; /* 枠線をなくす */
+}
+
+/* 黄色い缶のスタイル */
+.yellow-can {
+    position: absolute;
+    width: 30px; /* 缶の幅 */
+    height: 40px; /* 缶の高さ */
+    background-image: url('yellowcan.png'); /* 猫の画像ファイルへのパス */
+    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
+    background-repeat: no-repeat; /* 画像を繰り返さない */
+    background-color: transparent; /* 背景色を透明にする */
+    border: none; /* 枠線をなくす */
+}
+
+/* 黒い缶のスタイル */
+.black-can {
+    position: absolute;
+    width: 30px; /* 缶の幅 */
+    height: 40px; /* 缶の高さ */
+    background-image: url('blackcan.png'); /* 猫の画像ファイルへのパス */
+    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
+    background-repeat: no-repeat; /* 画像を繰り返さない */
+    background-color: transparent; /* 背景色を透明にする */
+    border: none; /* 枠線をなくす */
+}
