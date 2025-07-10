@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return rect1.left < rect2.left + rect2.width &&
                rect1.left + rect1.width > rect2.left &&
                rect1.bottom < rect2.bottom + rect2.height &&
-               rect1.bottom + rect1.height > rect2.bottom; // ここを修正 (rect1.heightに修正)
+               rect1.bottom + rect1.height > rect2.bottom;
     }
 
     // 重ならないbottom座標を見つけるヘルパー関数
@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fishAttractionTimerId) clearTimeout(fishAttractionTimerId); 
 
         // ゲームの要素を初期化
-        createCat();
+        createCat(); // ★この行が重要です★
         
         // メインループを開始
         gameTimerId = setInterval(gameLoop, 20);

@@ -5,12 +5,30 @@ body {
 
 #game-container {
     position: relative;
-    width: 800px;
-    height: 500px;
-    background-color: #87CEEB; /* 空のような水色 */
+    width: 800px; /* ゲームの表示幅 */
+    height: 500px; /* ゲームの表示高さ */
+    /* background-color: #87CEEB; /* 空のような水色 */ /* 背景色をコメントアウトまたは削除 */
     border: 2px solid #333;
     margin: 0 auto;
     overflow: hidden;
+
+    /* ★ここが前回の修正内容です★ */
+    background-image: url('background.png'); /* 準備した背景画像のパス */
+    background-repeat: repeat-x; /* 横方向にリピート */
+    background-position: 0 bottom; /* 背景画像をコンテナの下端に合わせる */
+    background-size: auto 100%; /* 高さに合わせて画像を拡大縮小し、幅は自動調整 */
+    animation: background-scroll linear infinite; /* アニメーションを適用 */
+    animation-duration: 20s; /* アニメーションの速度。数字を小さくすると速くなる */
+}
+
+/* ★ここが前回の修正内容です★ */
+@keyframes background-scroll {
+    from {
+        background-position: 0 bottom;
+    }
+    to {
+        background-position: -800px bottom; /* ゲームコンテナの幅分だけ左にずらす */
+    }
 }
 
 #score-board {
