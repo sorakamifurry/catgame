@@ -1,16 +1,28 @@
 body {
     text-align: center;
     font-family: sans-serif;
+    /* 画面全体にコンテンツを中央揃えするための調整 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* ビューポートの高さ全体を占めるようにする */
+    margin: 0;
+    overflow: hidden; /* スクロールバーが表示されないようにする */
+}
+
+h1 {
+    margin-top: 10px; /* 適切なマージンを設定 */
 }
 
 #game-container {
-    position: relative; /* 子要素を絶対位置で配置するための基準になります */
+    position: relative;
     width: 800px;
     height: 500px;
     background-color: #87CEEB; /* 空のような水色 */
     border: 2px solid #333;
-    margin: 0 auto; /* 中央揃え */
-    overflow: hidden; /* ゲーム画面からはみ出た要素を隠します */
+    margin: 0 auto;
+    overflow: hidden;
 }
 
 /* インフォメーションバーのスタイル */
@@ -22,112 +34,166 @@ body {
     font-size: 24px;
 }
 
-/* 情報バー内の各要素のスタイル */
-#score-board, #control-info, #timer-board {
-    background-color: rgba(255, 255, 255, 0.7); /* 白っぽい半透明の背景 */
-    padding: 5px 10px;
-    border-radius: 5px;
-    flex-grow: 1; /* 各要素が利用可能なスペースを均等に占めるようにする */
-    text-align: center;
-    margin: 0 5px; /* 各要素の間に少しスペースを空ける */
-}
-
+/* その他の既存のスタイル（猫、魚、ブロック、缶など）はここに続く */
 #cat {
-    position: absolute; /* game-container内での絶対位置 */
-    width: 60px; /* 猫の画像の幅に合わせて調整 */
-    height: 60px; /* 猫の画像の高さに合わせて調整 */
-    background-image: url('cat.png'); /* 猫の画像ファイルへのパス */
-    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
-    background-repeat: no-repeat; /* 画像を繰り返さない */
-    background-color: transparent; /* 背景色を透明にする */
-    border: none; /* 枠線をなくす */
-    left: 50px; /* 画面の左からの位置 */
-    bottom: 0px; /* 画面の下からの位置 */
+    position: absolute;
+    width: 250px;  
+    height: 250px; 
+    background-image: url('cat_animation.png');
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-size: 2000px auto; 
+    left: 50px;
+    bottom: -85px; 
+    animation: cat-run 0.5s steps(8) infinite; 
 }
 
 .fish {
     position: absolute;
-    width: 50px; /* 魚の画像の幅に合わせて調整 */
-    height: 30px; /* 魚の画像の高さに合わせて調整 */
-    background-image: url('fish.png'); /* 魚の画像ファイルへのパス */
-    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
-    background-repeat: no-repeat; /* 画像を繰り返さない */
-    background-color: transparent; /* 背景色を透明にする */
-    border: none; /* 枠線をなくす */
+    width: 50px;
+    height: 30px;
+    background-image: url("fish.png");
+    background-size: contain; 
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-/* 乗ることができるブロックのスタイル */
-.block {
-    position: absolute;
-    width: 130px;
-    height: 20px;
-    background-color: #6D4C41; /* 茶色 */
-    border: 2px solid #3E2723;
-}
-
-/* ゲームオーバーメッセージのスタイル */
 #game-over-message {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8); /* 黒っぽい半透明の背景 */
-    color: white;
+    background-color: rgba(255, 255, 255, 0.8);
     padding: 20px;
     border-radius: 10px;
     text-align: center;
-    font-size: 3em; /* 大きな文字 */
-    z-index: 100; /* 他の要素より手前に表示 */
+    font-size: 3em;
+    color: #E53935;
+    z-index: 100;
 }
 
 #game-over-message button {
-    font-size: 0.5em; /* 親要素の半分 */
+    font-size: 0.5em;
     padding: 10px 20px;
-    background-color: #4CAF50; /* 緑色のボタン */
-    color: white;
-    border: none;
-    border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
 }
 
-/* 隠すためのクラス */
 .hidden {
     display: none;
 }
 
-/* 白い缶のスタイル */
+.block {
+    position: absolute;
+    width: 130px;
+    height: 20px;
+    background-color: #6D4C41; 
+    border: 2px solid #3E2723;
+}
+
 .can {
     position: absolute;
-    width: 30px; /* 缶の幅 */
-    height: 40px; /* 缶の高さ */
-    background-image: url('whitecan.png'); /* 猫の画像ファイルへのパス */
-    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
-    background-repeat: no-repeat; /* 画像を繰り返さない */
-    background-color: transparent; /* 背景色を透明にする */
-    border: none; /* 枠線をなくす */
+    width: 30px;
+    height: 40px;
+    background-image: url("whitecan.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-/* 黄色い缶のスタイル */
 .yellow-can {
     position: absolute;
-    width: 30px; /* 缶の幅 */
-    height: 40px; /* 缶の高さ */
-    background-image: url('yellowcan.png'); /* 猫の画像ファイルへのパス */
-    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
-    background-repeat: no-repeat; /* 画像を繰り返さない */
-    background-color: transparent; /* 背景色を透明にする */
-    border: none; /* 枠線をなくす */
+    width: 30px;
+    height: 40px;
+    background-image: url("yellowcan.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-/* 黒い缶のスタイル */
 .black-can {
     position: absolute;
-    width: 30px; /* 缶の幅 */
-    height: 40px; /* 缶の高さ */
-    background-image: url('blackcan.png'); /* 猫の画像ファイルへのパス */
-    background-size: contain; /* 画像が要素内に収まるようにサイズを調整 */
-    background-repeat: no-repeat; /* 画像を繰り返さない */
-    background-color: transparent; /* 背景色を透明にする */
-    border: none; /* 枠線をなくす */
+    width: 30px;
+    height: 40px;
+    background-image: url("blackcan.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+@keyframes cat-run {
+    from {
+        background-position: 0px 0px;
+    }
+    to {
+        background-position: -2000px 0px;
+    }
+}
+
+/* スマートフォンでの横向き表示のためのメディアクエリ */
+@media screen and (orientation: landscape) and (max-width: 900px) {
+    body {
+        /* 横向きの場合、bodyのflex設定は、ゲームコンテナを中央に配置するのに役立ちます */
+        flex-direction: row; /* 横並びにする */
+        justify-content: center;
+        align-items: center;
+    }
+
+    h1 {
+        display: none; /* 横向きではタイトルを非表示にするか、配置を調整する */
+    }
+
+    #info-bar {
+        flex-direction: column; /* info-barの要素を縦に並べる */
+        width: auto; /* 幅を自動調整 */
+        margin: 10px;
+        font-size: 18px; /* フォントサイズを小さくする */
+    }
+
+    #game-container {
+        /* 横向きの画面サイズに合わせて調整 */
+        width: 90vw; /* ビューポートの幅の90% */
+        height: 80vh; /* ビューポートの高さの80% */
+        max-width: 800px; /* 元の幅の最大値 */
+        max-height: 500px; /* 元の高さの最大値 */
+    }
+}
+
+/* スマートフォンでの縦向き表示の場合のメディアクエリ (必要であれば) */
+@media screen and (orientation: portrait) and (max-width: 600px) {
+    #info-bar {
+        font-size: 18px;
+        width: 95%; /* 縦向き画面の幅に合わせて調整 */
+    }
+
+    #game-container {
+        width: 95vw;
+        height: calc(95vw * (500/800)); /* アスペクト比を維持 */
+        max-height: 400px; /* 最大高さを設定 */
+    }
+
+    #cat {
+        width: 150px;
+        height: 150px;
+        background-size: 1200px auto; /* 新しい幅に合わせて背景サイズも調整 */
+        bottom: -50px; /* 新しいサイズに合わせて調整 */
+    }
+    
+    .fish {
+        width: 30px;
+        height: 20px;
+    }
+
+    .block {
+        width: 90px;
+        height: 15px;
+    }
+
+    .can, .yellow-can, .black-can {
+        width: 20px;
+        height: 30px;
+    }
+
+    #game-over-message {
+        font-size: 2em;
+    }
 }
