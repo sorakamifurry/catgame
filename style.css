@@ -3,16 +3,18 @@ body {
     font-family: sans-serif;
     /* 画面全体にコンテンツを中央揃えするための調整 */
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* デフォルトは縦並び */
     align-items: center;
     justify-content: center;
     min-height: 100vh; /* ビューポートの高さ全体を占めるようにする */
     margin: 0;
     overflow: hidden; /* スクロールバーが表示されないようにする */
+    background-color: #f0f0f0; /* 確認しやすいように背景色を追加 */
 }
 
 h1 {
     margin-top: 10px; /* 適切なマージンを設定 */
+    color: #333;
 }
 
 #game-container {
@@ -23,39 +25,57 @@ h1 {
     border: 2px solid #333;
     margin: 0 auto;
     overflow: hidden;
+    /* スマートフォンでの表示を考慮し、最大幅と高さを設定 */
+    max-width: 100vw; /* ビューポートの幅を超えないようにする */
+    max-height: 100vh; /* ビューポートの高さを超えないようにする */
 }
 
 /* インフォメーションバーのスタイル */
 #info-bar {
     display: flex;
     justify-content: space-around;
-    width: 800px;
+    width: 800px; /* PC版のデフォルト幅 */
     margin: 10px auto;
     font-size: 24px;
+    background-color: rgba(255, 255, 255, 0.7); /* 確認しやすいように背景色を追加 */
+    padding: 5px 0;
+    border-radius: 5px;
 }
 
-/* その他の既存のスタイル（猫、魚、ブロック、缶など）はここに続く */
+#score-board, #control-info, #timer-board {
+    padding: 0 10px; /* 内側の余白 */
+}
+
+
 #cat {
     position: absolute;
     width: 250px;  
     height: 250px; 
-    background-image: url('cat_animation.png');
+    
+    background-image: url('cat_animation.png'); /* 画像の名前を指定 */
     background-repeat: no-repeat;
     background-position: 0 0;
     background-size: 2000px auto; 
+    
     left: 50px;
     bottom: -85px; 
     animation: cat-run 0.5s steps(8) infinite; 
+    /* デバッグ用 */
+    /* border: 1px solid red; */
+    /* box-sizing: border-box; */
 }
 
 .fish {
     position: absolute;
     width: 50px;
     height: 30px;
-    background-image: url("fish.png");
+    background-image: url("fish.png"); 
     background-size: contain; 
     background-repeat: no-repeat;
     background-position: center;
+    /* デバッグ用 */
+    /* border: 1px solid blue; */
+    /* box-sizing: border-box; */
 }
 
 #game-over-message {
@@ -76,6 +96,7 @@ h1 {
     font-size: 0.5em;
     padding: 10px 20px;
     cursor: pointer;
+    margin-top: 15px;
 }
 
 .hidden {
@@ -88,112 +109,165 @@ h1 {
     height: 20px;
     background-color: #6D4C41; 
     border: 2px solid #3E2723;
+    /* デバッグ用 */
+    /* border: 1px solid green; */
+    /* box-sizing: border-box; */
 }
 
-.can {
+.can, .yellow-can, .black-can {
     position: absolute;
     width: 30px;
     height: 40px;
-    background-image: url("whitecan.png"); 
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+    /* デバッグ用 */
+    /* border: 1px solid purple; */
+    /* box-sizing: border-box; */
 }
 
-.yellow-can {
-    position: absolute;
-    width: 30px;
-    height: 40px;
-    background-image: url("yellowcan.png"); 
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
+.can { background-image: url("whitecan.png"); }
+.yellow-can { background-image: url("yellowcan.png"); }
+.black-can { background-image: url("blackcan.png"); }
 
-.black-can {
-    position: absolute;
-    width: 30px;
-    height: 40px;
-    background-image: url("blackcan.png"); 
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
 
+/* アニメーションの定義 */
 @keyframes cat-run {
     from {
         background-position: 0px 0px;
     }
     to {
-        background-position: -2000px 0px;
+        background-position: -2000px 0px; 
     }
 }
 
-/* スマートフォンでの横向き表示のためのメディアクエリ */
-@media screen and (orientation: landscape) and (max-width: 900px) {
+/* ========================================================= */
+/* スマートフォンでの表示調整 (より汎用的なアプローチ)       */
+/* ========================================================= */
+
+/* 横向きのデバイス（例：スマートフォン、小型タブレットを横向きにした場合） */
+@media screen and (orientation: landscape) and (max-width: 999px) { /* max-widthを調整 */
     body {
-        /* 横向きの場合、bodyのflex設定は、ゲームコンテナを中央に配置するのに役立ちます */
         flex-direction: row; /* 横並びにする */
         justify-content: center;
         align-items: center;
+        height: 100vh; /* ビューポートの高さをフルに使う */
+        width: 100vw;  /* ビューポートの幅をフルに使う */
     }
 
     h1 {
-        display: none; /* 横向きではタイトルを非表示にするか、配置を調整する */
+        display: none; /* 横向きではタイトルを非表示 */
     }
 
     #info-bar {
         flex-direction: column; /* info-barの要素を縦に並べる */
-        width: auto; /* 幅を自動調整 */
+        width: auto; 
         margin: 10px;
-        font-size: 18px; /* フォントサイズを小さくする */
+        font-size: 16px; /* フォントサイズを小さくする */
+        padding: 5px;
     }
 
     #game-container {
-        /* 横向きの画面サイズに合わせて調整 */
+        /* 横向き画面の比率を維持しつつ、画面サイズに合わせる */
         width: 90vw; /* ビューポートの幅の90% */
-        height: 80vh; /* ビューポートの高さの80% */
-        max-width: 800px; /* 元の幅の最大値 */
-        max-height: 500px; /* 元の高さの最大値 */
-    }
-}
-
-/* スマートフォンでの縦向き表示の場合のメディアクエリ (必要であれば) */
-@media screen and (orientation: portrait) and (max-width: 600px) {
-    #info-bar {
-        font-size: 18px;
-        width: 95%; /* 縦向き画面の幅に合わせて調整 */
+        height: calc(90vw * (500 / 800)); /* アスペクト比 (高さ / 幅) を維持 */
+        max-width: 800px; /* PC版の最大幅を維持 */
+        max-height: 500px; /* PC版の最大高さを維持 */
+        margin: 0 10px; /* 左右に少しマージン */
     }
 
-    #game-container {
-        width: 95vw;
-        height: calc(95vw * (500/800)); /* アスペクト比を維持 */
-        max-height: 400px; /* 最大高さを設定 */
-    }
-
+    /* ゲームコンテナ内の要素のサイズも相対的に調整 */
     #cat {
-        width: 150px;
-        height: 150px;
-        background-size: 1200px auto; /* 新しい幅に合わせて背景サイズも調整 */
-        bottom: -50px; /* 新しいサイズに合わせて調整 */
+        width: 180px;  /* 調整 */
+        height: 180px; /* 調整 */
+        background-size: 1440px auto; /* 8コマ * 180px = 1440px */
+        left: 30px; /* 調整 */
+        bottom: -60px; /* 調整 */
     }
-    
+
     .fish {
-        width: 30px;
-        height: 20px;
+        width: 40px;
+        height: 24px;
     }
 
     .block {
-        width: 90px;
+        width: 100px;
         height: 15px;
     }
 
     .can, .yellow-can, .black-can {
+        width: 25px;
+        height: 33px;
+    }
+
+    #game-over-message {
+        font-size: 2.5em;
+        padding: 15px;
+    }
+
+    #game-over-message button {
+        font-size: 0.4em;
+        padding: 8px 15px;
+    }
+}
+
+/* 縦向きのデバイス（例：スマートフォン、小型タブレットを縦向きにした場合） */
+@media screen and (orientation: portrait) and (max-width: 600px) {
+    body {
+        flex-direction: column; /* 縦並び */
+    }
+
+    h1 {
+        display: block; /* 縦向きではタイトルを表示 */
+        font-size: 2em;
+    }
+
+    #info-bar {
+        flex-direction: row; /* 横並びに戻す */
+        width: 95vw; /* 画面幅の95% */
+        margin: 10px auto;
+        font-size: 14px; /* さらに小さく */
+    }
+
+    #game-container {
+        width: 95vw; /* 画面幅の95% */
+        height: calc(95vw * (500 / 800)); /* アスペクト比を維持 */
+        max-width: 800px;
+        max-height: 500px;
+        margin: 0 auto;
+    }
+
+    /* ゲームコンテナ内の要素のサイズも相対的に調整 */
+    #cat {
+        width: 150px;  /* 調整 */
+        height: 150px; /* 調整 */
+        background-size: 1200px auto; /* 8コマ * 150px = 1200px */
+        left: 20px; /* 調整 */
+        bottom: -50px; /* 調整 */
+    }
+    
+    .fish {
+        width: 30px;
+        height: 18px;
+    }
+
+    .block {
+        width: 80px;
+        height: 12px;
+    }
+
+    .can, .yellow-can, .black-can {
         width: 20px;
-        height: 30px;
+        height: 27px;
     }
 
     #game-over-message {
         font-size: 2em;
+        padding: 15px;
+    }
+
+    #game-over-message button {
+        font-size: 0.35em;
+        padding: 6px 12px;
     }
 }
