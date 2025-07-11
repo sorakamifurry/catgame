@@ -634,19 +634,24 @@ function generateWarningSign(bottomPosition) {
         // メインループを開始
         gameTimerId = setInterval(gameLoop, 20);
         document.addEventListener('keydown', control);
-        // ★ここを修正★ タッチ/クリックでのジャンプをゲームコンテナ内のみに
-        gameContainer.addEventListener('click', () => { 
-            if (!isGameOver && jumpCount < MAX_JUMPS) {
-                jump();
-            }
-        });
-        gameContainer.addEventListener('touchstart', (e) => { 
-            e.preventDefault(); 
-            if (!isGameOver && jumpCount < MAX_JUMPS) {
-                jump();
-            }
-        });
-        // ★ここまで修正★
+    // index.htmlで追加したジャンプボタンの要素を取得
+    const jumpButton = document.getElementById('jump-button');
+
+    // ジャンプボタンがクリックされた時の処理
+    jumpButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!isGameOver && jumpCount < MAX_JUMPS) {
+            jump();
+        }
+    });
+
+    // ジャンプボタンがタッチされた時の処理（モバイル対応）
+    jumpButton.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (!isGameOver && jumpCount < MAX_JUMPS) {
+            jump();
+        }
+    });
         
         // 制限時間のタイマー
         const countdownTimerId = setInterval(() => {
