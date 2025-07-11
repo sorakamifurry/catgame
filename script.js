@@ -634,18 +634,19 @@ function generateWarningSign(bottomPosition) {
         // メインループを開始
         gameTimerId = setInterval(gameLoop, 20);
         document.addEventListener('keydown', control);
-        // タッチ/クリックでのジャンプを追加
-        gameContainer.addEventListener('click', () => {
+        // ★ここから修正★ タッチ/クリックでのジャンプをページ全体で有効に
+        document.addEventListener('click', () => { 
             if (!isGameOver && jumpCount < MAX_JUMPS) {
                 jump();
             }
         });
-        gameContainer.addEventListener('touchstart', (e) => {
-            e.preventDefault(); 
+        document.addEventListener('touchstart', (e) => { 
+            e.preventDefault(); // デフォルトのスクロール動作などを無効化
             if (!isGameOver && jumpCount < MAX_JUMPS) {
                 jump();
             }
         });
+        // ★ここまで修正★
         
         // 制限時間のタイマー
         const countdownTimerId = setInterval(() => {
