@@ -188,6 +188,32 @@ body {
     background-position: center;
 }
 
+/* 鳥のスタイル */
+.bird {
+    position: absolute;
+    width: 60px;   /* 鳥の幅を調整 */
+    height: 40px;  /* 鳥の高さを調整 */
+    background-image: url("bird.png"); /* 鳥の画像ファイルを指定 */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* 必要であればアニメーションを追加することも可能 */
+}
+
+/* 警告サインのスタイル */
+.warning-sign {
+    position: absolute;
+    width: 100px;   /* ★ここを70pxに修正★ */
+    height: 100px;  /* ★ここを70pxに修正★ */
+    background-image: url("exclamation_mark.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 10; 
+    opacity: 1; 
+    transition: opacity 0.3s ease-out; 
+}
+
 
 /* アニメーションの定義 */
 @keyframes cat-run {
