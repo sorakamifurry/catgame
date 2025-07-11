@@ -579,7 +579,7 @@ function generateWarningSign(bottomPosition) {
     function startGame() {
         // 変数をリセット
         isGameOver = false;
-        isJumping = false;
+        isJumping = false; // ★ここをtrueからfalseに修正または確認★
         score = 0;
         gameSpeed = 5; 
         timeLeft = 30; 
@@ -590,7 +590,7 @@ function generateWarningSign(bottomPosition) {
         gameOverMessage.style.display = 'none'; 
         
         // 既存のゲーム要素（魚、ブロック、缶、警告サイン）をすべて削除
-        fishAndBlocks.forEach(item => { // ★ここを修正★
+        fishAndBlocks.forEach(item => { 
             if (item.element && gameContainer.contains(item.element)) {
                 gameContainer.removeChild(item.element);
             }
@@ -604,7 +604,7 @@ function generateWarningSign(bottomPosition) {
         
         fishSpawnCount = 1; 
         lastFishSpawnSpeedIncrease = 5;
-        jumpCount = 0; 
+        jumpCount = 0; // ★ここを0にリセットまたは確認★
         isFishAttractionActive = false; 
         if (fishAttractionTimerId) clearTimeout(fishAttractionTimerId); 
 
@@ -618,9 +618,16 @@ function generateWarningSign(bottomPosition) {
         if (gameTimerId) clearInterval(gameTimerId);
         if (speedTimerId) clearInterval(speedTimerId);
         if (fishGeneratorId) clearTimeout(fishGeneratorId);
+        // ★ここから追加★ 猫のジャンプ・落下タイマーを確実にクリア
+        if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
+        if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
+        // ★ここまで追加★
         
         // ゲームの要素を初期化
         createCat();
+        // 猫の初期位置もここで確実に設定
+        catBottom = -85; // ★ここを-85に設定または確認★
+        if (cat) cat.style.bottom = catBottom + 'px'; // 猫の要素が存在すればスタイルを適用
         
         // localStorageからハイスコアを読み込む
         const savedHighScore = localStorage.getItem('catJumpHighScore');
@@ -634,24 +641,18 @@ function generateWarningSign(bottomPosition) {
         // メインループを開始
         gameTimerId = setInterval(gameLoop, 20);
         document.addEventListener('keydown', control);
-    // index.htmlで追加したジャンプボタンの要素を取得
-    const jumpButton = document.getElementById('jump-button');
-
-    // ジャンプボタンがクリックされた時の処理
-    jumpButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!isGameOver && jumpCount < MAX_JUMPS) {
-            jump();
-        }
-    });
-
-    // ジャンプボタンがタッチされた時の処理（モバイル対応）
-    jumpButton.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (!isGameOver && jumpCount < MAX_JUMPS) {
-            jump();
-        }
-    });
+        // タッチ/クリックでのジャンプを追加
+        gameContainer.addEventListener('click', () => {
+            if (!isGameOver && jumpCount < MAX_JUMPS) {
+                jump();
+            }
+        });
+        gameContainer.addEventListener('touchstart', (e) => {
+            e.preventDefault(); 
+            if (!isGameOver && jumpCount < MAX_JUMPS) {
+                jump();
+            }
+        });
         
         // 制限時間のタイマー
         const countdownTimerId = setInterval(() => {
@@ -717,24 +718,20 @@ function generateWarningSign(bottomPosition) {
                 generateBlackCan();
             }
 
-            // ★ここから修正★ 鳥の出現に警告サインを追加
-            if (Math.random() > 0.90) { // 2%の確率で鳥が出現
-                console.log("鳥の出現条件が満たされました！"); // ★追加★
+            // 鳥の出現に警告サインを追加
+            if (Math.random() > 0.98) { // 2%の確率で鳥が出現
                 const birdDimensions = getItemDimensions('bird');
                 // まず鳥が出現するbottom座標を決定
                 const birdBottomPos = findNonOverlappingBottom(birdDimensions.width, birdDimensions.height);
 
                 // 鳥が出現する2秒前に警告サインを表示（鳥の位置に合わせる）
-                console.log("警告サインを生成します。bottomPos:", birdBottomPos); // ★追加★
                 generateWarningSign(birdBottomPos);
 
                 // 2秒後に鳥を生成
                 setTimeout(() => {
-                    console.log("2秒経過、鳥を生成します。"); // ★追加★
                     generateBird(birdBottomPos); // 決定したbottom座標で鳥を生成
                 }, 2000); // 2秒 = 2000ミリ秒
             }
-            // ★ここまで修正★
 
             let baseDelay = 500; 
             if (timeLeft <= 10) { 
