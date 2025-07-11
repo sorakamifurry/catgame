@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeLeftDisplay = document.getElementById('time-left');
     const gameOverMessage = document.getElementById('game-over-message');
     const restartButton = document.getElementById('restart-button');
-    const highScoreDisplay = document.getElementById('high-score'); 
+    const highScoreDisplay = document.getElementById('high-score');
+    const jumpButton = document.getElementById('jump-button'); // 追加したジャンプボタン
 
     // グローバル変数
     let cat, catBottom, isJumping, gravity = 0.9;
@@ -13,14 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let gameSpeed = 5;
     let fishAndBlocks = []; // 画面上の魚とブロック、缶をすべて管理する配列
-    let gameTimerId, speedTimerId, fishGeneratorId; 
+    let gameTimerId, speedTimerId, fishGeneratorId;
     let fishSpawnCount = 1; // 魚の初期生成数
     let lastFishSpawnSpeedIncrease = 5; // 魚の生成数を最後に増やした時のgameSpeed (初期値は最初のgameSpeed)
     let fishGroupInterval = 100; // 魚が連なる際の生成間隔（ms）
     let timeLeft;
     let isFishAttractionActive = false; // 魚の吸い寄せが有効かどうか
     let fishAttractionTimerId; // 吸い寄せ効果のタイマーID
-    let highScore = 0; 
+    let highScore = 0;
 
     // 2段ジャンプのための変数
     let jumpCount = 0; // 現在のジャンプ回数
@@ -38,8 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'can':
             case 'yellowCan':
             case 'blackCan': return { width: 30, height: 40 };
-            case 'bird': return { width: 60, height: 40 }; 
-            case 'warning-sign': return { width: 100, height: 100 }; // ★ここを70x70に修正★
+            case 'bird': return { width: 60, height: 40 };
+            case 'warning-sign': return { width: 100, height: 100 };
             default: return { width: 0, height: 0 };
         }
     }
@@ -64,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 proposedBottom = initialY;
             } else {
                 // 鳥は地面に埋まらないように調整
-                if (newHeight === getItemDimensions('bird').height) { 
+                if (newHeight === getItemDimensions('bird').height) {
                     proposedBottom = Math.random() * (CONTAINER_HEIGHT - newHeight - 100) + 100; // 地面から少し浮かせた位置
                 } else {
                     proposedBottom = Math.random() * (CONTAINER_HEIGHT - newHeight);
@@ -84,10 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let i = 0; i < fishAndBlocks.length; i++) {
                 const existingItem = fishAndBlocks[i];
                 const existingDimensions = getItemDimensions(existingItem.type);
-                
-                const SPAWN_AREA_BUFFER = 200; 
+
+                const SPAWN_AREA_BUFFER = 200;
                 // ここで警告サインが出現している場合は、その位置も考慮に入れる
-                if ((existingItem.type === 'warning-sign' && existingItem.left > SPAWN_X - SPAWN_AREA_BUFFER) || // ★ここから修正★
+                if ((existingItem.type === 'warning-sign' && existingItem.left > SPAWN_X - SPAWN_AREA_BUFFER) ||
                     (existingItem.left < SPAWN_X + SPAWN_AREA_BUFFER && existingItem.left + existingDimensions.width > SPAWN_X - SPAWN_AREA_BUFFER)) {
                     const existingRect = {
                         left: existingItem.left,
@@ -98,10 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (doRectanglesOverlap(newRect, existingRect)) {
                         overlaps = true;
-                        break; 
+                        break;
                     }
                 }
-            } // ★ここまで修正★
+            }
 
             if (!overlaps) {
                 foundValidPosition = true;
@@ -121,31 +122,36 @@ document.addEventListener('DOMContentLoaded', () => {
         cat.id = 'cat';
         cat.style.left = '50px';
         // CSSのbottom値と合わせる
-        catBottom = -85; 
+        catBottom = -85;
         cat.style.bottom = catBottom + 'px';
         gameContainer.appendChild(cat);
     }
 
     // ジャンプ処理
     function jump() {
-        if (jumpCount >= MAX_JUMPS) return; 
+        console.log("jump()が呼び出されました。現在のjumpCount:", jumpCount, "isJumping:", isJumping); // ★追加ログ★
+        if (jumpCount >= MAX_JUMPS) {
+            console.log("jump(): MAX_JUMPS (" + MAX_JUMPS + ") に達したため、ジャンプできません。"); // ★追加ログ★
+            return;
+        }
 
         isJumping = true;
-        jumpCount++; 
-        
-        if (cat.upTimerId) clearInterval(cat.upTimerId); 
+        jumpCount++;
+        console.log("jump(): ジャンプ実行。jumpCountが", jumpCount, "になりました。"); // ★追加ログ★
+
+        if (cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat.downTimerId) clearInterval(cat.downTimerId);
 
         // ゲームスピードに応じてジャンプ力と高さを計算
-        const upSpeed = 30 + gameSpeed; 
-        const jumpHeight = catBottom + (250 + (gameSpeed * 4)); 
+        const upSpeed = 30 + gameSpeed;
+        const jumpHeight = catBottom + (250 + (gameSpeed * 4));
 
         cat.upTimerId = setInterval(function () {
-            if (catBottom >= jumpHeight) { 
+            if (catBottom >= jumpHeight) {
                 clearInterval(cat.upTimerId);
                 fall();
             } else {
-                catBottom += upSpeed; 
+                catBottom += upSpeed;
                 cat.style.bottom = catBottom + 'px';
             }
         }, 20);
@@ -157,12 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         cat.downTimerId = setInterval(function () {
             // 地面に着いたか？ (CSSのbottom値と合わせる)
-            if (catBottom <= -85) { 
+            if (catBottom <= -85) {
                 clearInterval(cat.downTimerId);
                 isJumping = false;
-                catBottom = -85; 
-                cat.style.bottom = '-85px'; 
-                jumpCount = 0; 
+                catBottom = -85;
+                cat.style.bottom = '-85px';
+                jumpCount = 0;
+                console.log("fall(): 地面に着地。jumpCountを", jumpCount, "にリセットしました。"); // ★追加ログ★
                 return;
             }
 
@@ -175,8 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const blockHeight = getItemDimensions('block').height;
 
                     // 猫の当たり判定の微調整のための定数（gameLoop()のものを再利用）
-                    const CAT_COLLISION_WIDTH = 180;  
-                    const CAT_COLLISION_OFFSET_X = 35; 
+                    const CAT_COLLISION_WIDTH = 180;
+                    const CAT_COLLISION_OFFSET_X = 35;
 
                     // 猫の衝突ボックスの左右の境界を計算
                     const catCollisionLeft = parseInt(cat.style.left) + CAT_COLLISION_OFFSET_X;
@@ -184,36 +191,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     const blockRight = blockLeft + getItemDimensions('block').width;
 
                     // 猫とブロックが水平方向に重なっているか（より正確な当たり判定）
-                    const isOverlappingHorizontally = 
-                        (catCollisionLeft < blockRight) && 
+                    const isOverlappingHorizontally =
+                        (catCollisionLeft < blockRight) &&
                         (catCollisionRight > blockLeft);
 
                     // 猫がこのブロックに着地した際に、最終的に設定されるcatBottomの目標値
-                    const targetLandedCatBottom = blockBottom + blockHeight - 85; 
+                    const targetLandedCatBottom = blockBottom + blockHeight - 85;
 
                     // 猫の足元がブロックのわずかに上にあるか（着地判定）
                     // 落下中のcatBottomが、着地したい目標位置の±5pxの範囲内にあるかを確認
-                    const isLandingVertically = 
-                        (catBottom >= targetLandedCatBottom - 5) && 
-                        (catBottom <= targetLandedCatBottom + 5);   
+                    const isLandingVertically =
+                        (catBottom >= targetLandedCatBottom - 5) &&
+                        (catBottom <= targetLandedCatBottom + 5);
 
                     if (isOverlappingHorizontally && isLandingVertically) {
                         clearInterval(cat.downTimerId);
                         isJumping = false;
-                        catBottom = targetLandedCatBottom; 
+                        catBottom = targetLandedCatBottom;
                         cat.style.bottom = catBottom + 'px';
-                        jumpCount = 0; 
+                        jumpCount = 0;
+                        console.log("fall(): ブロックに着地。jumpCountを", jumpCount, "にリセットしました。"); // ★追加ログ★
                         return;
                     }
                 }
             }
 
             // 落下を続ける (ゲームスピードに応じて落下速度を調整)
-            catBottom -= (5 + gameSpeed * 0.5); 
+            catBottom -= (5 + gameSpeed * 0.5);
             cat.style.bottom = catBottom + 'px';
         }, 20);
     }
-    
+
     // キー操作
     function control(e) {
         if (e.code === 'KeyS' && !isGameOver && jumpCount < MAX_JUMPS) {
@@ -223,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 魚の生成
-    function generateFish(yPos = -1) { 
+    function generateFish(yPos = -1) {
         const fish = document.createElement('div');
         fish.classList.add('fish');
         const newFishDimensions = getItemDimensions('fish');
@@ -232,8 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const fishData = {
             element: fish,
             type: 'fish',
-            left: SPAWN_X, 
-            bottom: proposedBottom 
+            left: SPAWN_X,
+            bottom: proposedBottom
         };
         fish.style.left = fishData.left + 'px';
         fish.style.bottom = fishData.bottom + 'px';
@@ -251,8 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const blockData = {
             element: block,
             type: 'block',
-            left: SPAWN_X, 
-            bottom: proposedBottom 
+            left: SPAWN_X,
+            bottom: proposedBottom
         };
         block.style.left = blockData.left + 'px';
         block.style.bottom = blockData.bottom + 'px';
@@ -270,8 +278,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const canData = {
             element: can,
             type: 'can',
-            left: SPAWN_X, 
-            bottom: proposedBottom 
+            left: SPAWN_X,
+            bottom: proposedBottom
         };
         can.style.left = canData.left + 'px';
         can.style.bottom = canData.bottom + 'px';
@@ -288,8 +296,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const yellowCanData = {
             element: yellowCan,
-            type: 'yellowCan', 
-            left: SPAWN_X, 
+            type: 'yellowCan',
+            left: SPAWN_X,
             bottom: proposedBottom
         };
         yellowCan.style.left = yellowCanData.left + 'px';
@@ -307,9 +315,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const blackCanData = {
             element: blackCan,
-            type: 'blackCan', 
-            left: SPAWN_X, 
-            bottom: proposedBottom 
+            type: 'blackCan',
+            left: SPAWN_X,
+            bottom: proposedBottom
         };
         blackCan.style.left = blackCanData.left + 'px';
         blackCan.style.bottom = blackCanData.bottom + 'px';
@@ -318,55 +326,55 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 鳥の生成関数 (yPosを受け取るように修正)
-    function generateBird(yPos = -1) { // ★ここを修正★
+    function generateBird(yPos = -1) {
         const bird = document.createElement('div');
         bird.classList.add('bird');
         const newBirdDimensions = getItemDimensions('bird');
         // yPosが指定されていればそれを使用、なければランダムに生成
-        const proposedBottom = (yPos !== -1) ? yPos : findNonOverlappingBottom(newBirdDimensions.width, newBirdDimensions.height); 
+        const proposedBottom = (yPos !== -1) ? yPos : findNonOverlappingBottom(newBirdDimensions.width, newBirdDimensions.height);
 
         const birdData = {
             element: bird,
-            type: 'bird', 
-            left: SPAWN_X, 
-            bottom: proposedBottom 
+            type: 'bird',
+            left: SPAWN_X,
+            bottom: proposedBottom
         };
         bird.style.left = birdData.left + 'px';
         bird.style.bottom = birdData.bottom + 'px';
         gameContainer.appendChild(bird);
         fishAndBlocks.push(birdData);
-    } // ★ここまで修正★
+    }
 
 // 警告サインの生成と表示、1秒後に削除する関数
 function generateWarningSign(bottomPosition) {
-    console.log("generateWarningSign関数が呼び出されました。bottomPosition:", bottomPosition); 
+    console.log("generateWarningSign関数が呼び出されました。bottomPosition:", bottomPosition);
     const warningSign = document.createElement('div');
     warningSign.classList.add('warning-sign');
     // warningSign.style.left = SPAWN_X + 'px'; // 元の行
 
     // 画面の右端から警告サインの幅分だけ左にずらして表示
     // SPAWN_X (800) から warningSign の幅 (50px) を引く
-    warningSign.style.left = (SPAWN_X - getItemDimensions('warning-sign').width) + 'px'; // ★この行に修正★
+    warningSign.style.left = (SPAWN_X - getItemDimensions('warning-sign').width) + 'px';
 
     // 警告サインの画像を鳥の高さの中央に合わせるように調整
     const birdHeight = getItemDimensions('bird').height;
     const warningHeight = getItemDimensions('warning-sign').height;
-    warningSign.style.bottom = (bottomPosition + (birdHeight / 2) - (warningHeight / 2)) + 'px'; 
+    warningSign.style.bottom = (bottomPosition + (birdHeight / 2) - (warningHeight / 2)) + 'px';
 
     gameContainer.appendChild(warningSign);
-    console.log("警告サイン要素がゲームコンテナに追加されました。", warningSign); 
+    console.log("警告サイン要素がゲームコンテナに追加されました。", warningSign);
 
     // 1秒後に警告サインをフェードアウトさせて削除
     setTimeout(() => {
         if (gameContainer.contains(warningSign)) {
-            warningSign.style.opacity = '0'; 
-            console.log("警告サインをフェードアウトさせます。"); 
+            warningSign.style.opacity = '0';
+            console.log("警告サインをフェードアウトさせます。");
             setTimeout(() => {
-                if (gameContainer.contains(warningSign)) { 
+                if (gameContainer.contains(warningSign)) {
                     gameContainer.removeChild(warningSign);
-                    console.log("警告サイン要素が削除されました。"); 
+                    console.log("警告サイン要素が削除されました。");
                 }
-            }, 300); 
+            }, 300);
         }
     }, 1000);
 }
@@ -378,8 +386,8 @@ function generateWarningSign(bottomPosition) {
         clearInterval(gameTimerId);
         clearInterval(speedTimerId);
         clearTimeout(fishGeneratorId);
-        fishAndBlocks.forEach(item => clearInterval(item.timerId)); 
-        
+        fishAndBlocks.forEach(item => clearInterval(item.timerId));
+
         // 猫のジャンプ・落下タイマーも停止
         if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
@@ -392,12 +400,12 @@ function generateWarningSign(bottomPosition) {
         }
 
         // ゲームオーバーメッセージを表示
-        gameOverMessage.style.display = 'flex'; 
-        
+        gameOverMessage.style.display = 'flex';
+
         // ゲームオーバー画像を動的に追加 (GAMEOVER.pngを読み込むように変更)
         const gameOverImageElement = document.createElement('img');
         gameOverImageElement.id = 'game-over-image';
-        gameOverImageElement.src = 'GAMEOVER.png'; // ★GAMEOVER.pngのURLを指定に修正★
+        gameOverImageElement.src = 'GAMEOVER.png';
         // 画像をボタンの前に挿入（flexboxなので先頭に追加すれば自動で中央揃えになる）
         gameOverMessage.insertBefore(gameOverImageElement, restartButton);
     }
@@ -407,25 +415,25 @@ function generateWarningSign(bottomPosition) {
         if (isGameOver) return;
 
         // 猫の当たり判定の微調整のための定数
-        const CAT_COLLISION_WIDTH = 100;  
+        const CAT_COLLISION_WIDTH = 100;
         const CAT_COLLISION_HEIGHT = 160; // ユーザーの指示により修正済み
-        const CAT_COLLISION_OFFSET_X = 35; 
-        const CAT_COLLISION_OFFSET_Y = 85; 
+        const CAT_COLLISION_OFFSET_X = 35;
+        const CAT_COLLISION_OFFSET_Y = 85;
 
         // 全ての魚とブロック、缶を動かす
         fishAndBlocks.forEach((item, index) => {
             if (item.type === 'fish') {
                 if (isFishAttractionActive) {
                     const fishDimensions = getItemDimensions('fish');
-                    const fishCenterX = item.left + fishDimensions.width / 2; 
-                    const fishCenterY = item.bottom + fishDimensions.height / 2; 
-                    
+                    const fishCenterX = item.left + fishDimensions.width / 2;
+                    const fishCenterY = item.bottom + fishDimensions.height / 2;
+
                     // 猫の衝突ボックスの中心
-                    const catRect = { 
-                        left: parseInt(cat.style.left) + CAT_COLLISION_OFFSET_X, 
-                        bottom: catBottom + CAT_COLLISION_OFFSET_Y, 
-                        width: CAT_COLLISION_WIDTH, 
-                        height: CAT_COLLISION_HEIGHT 
+                    const catRect = {
+                        left: parseInt(cat.style.left) + CAT_COLLISION_OFFSET_X,
+                        bottom: catBottom + CAT_COLLISION_OFFSET_Y,
+                        width: CAT_COLLISION_WIDTH,
+                        height: CAT_COLLISION_HEIGHT
                     };
                     const catCenterX = catRect.left + catRect.width / 2;
                     const catCenterY = catRect.bottom + catRect.height / 2;
@@ -434,54 +442,54 @@ function generateWarningSign(bottomPosition) {
                     const dy = catCenterY - fishCenterY;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    const attractionSpeed = (gameSpeed + 2); 
+                    const attractionSpeed = (gameSpeed + 2);
                     // 吸い寄せを停止する距離 (猫の当たり判定の中心から魚の中心までの距離)
-                    const attractionStopDistance = Math.max(catRect.width / 2, fishDimensions.width / 2) + 10; 
+                    const attractionStopDistance = Math.max(catRect.width / 2, fishDimensions.width / 2) + 10;
 
-                    if (distance > attractionStopDistance) { 
+                    if (distance > attractionStopDistance) {
                         item.left += (dx / distance) * attractionSpeed;
                         item.bottom += (dy / distance) * attractionSpeed;
                     }
                     // 吸い寄せが有効な場合でも、魚は通常のゲームスピードで左に流れる
-                    item.left -= gameSpeed; 
-                    
+                    item.left -= gameSpeed;
+
                 } else {
-                    item.left -= gameSpeed; 
+                    item.left -= gameSpeed;
                 }
 
                 item.element.style.left = item.left + 'px';
                 item.element.style.bottom = item.bottom + 'px';
             } else {
-                item.left -= gameSpeed; 
+                item.left -= gameSpeed;
                 item.element.style.left = item.left + 'px';
             }
 
             // 画面外に出たら削除
             // warning-signは移動しないので特別に処理しない
-            if (item.left < -cat.offsetWidth && item.type !== 'warning-sign') { // ★ここを修正★
+            if (item.left < -cat.offsetWidth && item.type !== 'warning-sign') {
                 gameContainer.removeChild(item.element);
                 fishAndBlocks.splice(index, 1);
-                return; 
+                return;
             }
-            
+
             // アイテムとの当たり判定
             // ここで猫の当たり判定領域をより正確に定義します
-            const catRect = { 
-                left: parseInt(cat.style.left) + CAT_COLLISION_OFFSET_X, 
-                bottom: catBottom + CAT_COLLISION_OFFSET_Y, 
-                width: CAT_COLLISION_WIDTH, 
-                height: CAT_COLLISION_HEIGHT 
+            const catRect = {
+                left: parseInt(cat.style.left) + CAT_COLLISION_OFFSET_X,
+                bottom: catBottom + CAT_COLLISION_OFFSET_Y,
+                width: CAT_COLLISION_WIDTH,
+                height: CAT_COLLISION_HEIGHT
             };
             const itemDimensions = getItemDimensions(item.type);
-            const itemRect = { 
-                left: item.left, 
-                bottom: item.bottom, 
-                width: itemDimensions.width, 
-                height: itemDimensions.height 
+            const itemRect = {
+                left: item.left,
+                bottom: item.bottom,
+                width: itemDimensions.width,
+                height: itemDimensions.height
             };
 
             // warning-signは当たり判定の対象外
-            if (item.type === 'warning-sign') return; // ★ここから追加★
+            if (item.type === 'warning-sign') return;
 
             if (doRectanglesOverlap(catRect, itemRect)) {
                 if (item.type === 'fish') {
@@ -489,46 +497,46 @@ function generateWarningSign(bottomPosition) {
                     fishAndBlocks.splice(index, 1);
                     score++;
                     scoreDisplay.innerText = score;
-                } 
+                }
                 else if (item.type === 'can') {
                     gameContainer.removeChild(item.element);
                     fishAndBlocks.splice(index, 1);
-                    timeLeft += 3; 
-                    timeLeftDisplay.innerText = timeLeft; 
+                    timeLeft += 3;
+                    timeLeftDisplay.innerText = timeLeft;
                 }
                 else if (item.type === 'yellowCan') {
                     gameContainer.removeChild(item.element);
                     fishAndBlocks.splice(index, 1);
-                    
+
                     if (fishAttractionTimerId) {
                         clearTimeout(fishAttractionTimerId);
                     }
-                    
-                    isFishAttractionActive = true; 
+
+                    isFishAttractionActive = true;
                     fishAttractionTimerId = setTimeout(() => {
                         isFishAttractionActive = false;
-                        console.log("魚の吸い寄せ効果が終了しました。"); 
-                    }, 5000); 
-                    
-                    console.log("黄色い缶を取りました！魚が吸い寄せられます。"); 
+                        console.log("魚の吸い寄せ効果が終了しました。");
+                    }, 5000);
+
+                    console.log("黄色い缶を取りました！魚が吸い寄せられます。");
                 }
                 else if (item.type === 'blackCan') {
                     gameContainer.removeChild(item.element);
                     fishAndBlocks.splice(index, 1);
-                    
-                    gameSpeed = Math.max(1, gameSpeed - 10); 
-                    console.log("黒い缶を取りました！ゲームスピードが低下し、ここから加速します。現在のスピード:", gameSpeed); 
+
+                    gameSpeed = Math.max(1, gameSpeed - 10);
+                    console.log("黒い缶を取りました！ゲームスピードが低下し、ここから加速します。現在のスピード:", gameSpeed);
                 }
-                else if (item.type === 'bird') { 
+                else if (item.type === 'bird') {
                     gameContainer.removeChild(item.element);
                     fishAndBlocks.splice(index, 1);
-                    gameOver(); 
+                    gameOver();
                 }
             }
-        }); // ★ここまで修正★
+        });
 
         // 猫が空中に浮いていないかチェックする（落下が必要か）
-        if (!isJumping && catBottom > -85) { 
+        if (!isJumping && catBottom > -85) {
             let isSupported = false;
             // 足元にブロックがあるか確認
             for (const item of fishAndBlocks) {
@@ -538,8 +546,8 @@ function generateWarningSign(bottomPosition) {
                     const blockHeight = getItemDimensions('block').height;
 
                     // 猫の当たり判定の微調整のための定数（gameLoop()のものを再利用）
-                    const CAT_COLLISION_WIDTH = 180;  
-                    const CAT_COLLISION_OFFSET_X = 35; 
+                    const CAT_COLLISION_WIDTH = 180;
+                    const CAT_COLLISION_OFFSET_X = 35;
 
                     // 猫の衝突ボックスの左右の境界を計算
                     const catCollisionLeft = parseInt(cat.style.left) + CAT_COLLISION_OFFSET_X;
@@ -547,18 +555,18 @@ function generateWarningSign(bottomPosition) {
                     const blockRight = blockLeft + getItemDimensions('block').width;
 
                     // 猫がブロックの上にいるかどうかの判定をより厳密に
-                    const horizontalOverlap = 
-                        (catCollisionLeft < blockRight) && 
+                    const horizontalOverlap =
+                        (catCollisionLeft < blockRight) &&
                         (catCollisionRight > blockLeft);
 
                     // 猫がこのブロックに着地した際に、最終的に設定されるcatBottomの目標値
-                    const targetLandedCatBottom = blockBottom + blockHeight - 85; 
+                    const targetLandedCatBottom = blockBottom + blockHeight - 85;
 
                     // 猫の足元がブロックのわずかに上にあるか（着地判定）
                     // 落下中のcatBottomが、着地したい目標位置の±5pxの範囲内にあるかを確認
-                    const isLandingVertically = 
-                        (catBottom >= targetLandedCatBottom - 5) && 
-                        (catBottom <= targetLandedCatBottom + 5); 
+                    const isLandingVertically =
+                        (catBottom >= targetLandedCatBottom - 5) &&
+                        (catBottom <= targetLandedCatBottom + 5);
 
                     if (horizontalOverlap && isLandingVertically) {
                         isSupported = true;
@@ -569,7 +577,7 @@ function generateWarningSign(bottomPosition) {
 
             // もし支えがなければ、落下させる
             if (!isSupported) {
-                isJumping = true; 
+                isJumping = true;
                 fall();
             }
         }
@@ -577,36 +585,46 @@ function generateWarningSign(bottomPosition) {
 
     // ゲーム開始処理
     function startGame() {
+        // ★ここから追加ログとリセット確認★
+        console.log("--- startGameが呼び出されました ---");
+        // ★ここまで追加ログとリセット確認★
+
         // 変数をリセット
         isGameOver = false;
-        isJumping = false; // ★ここをtrueからfalseに修正または確認★
+        isJumping = false;
         score = 0;
-        gameSpeed = 5; 
-        timeLeft = 30; 
-        timeLeftDisplay.innerText = timeLeft; 
+        gameSpeed = 5;
+        timeLeft = 30;
+        timeLeftDisplay.innerText = timeLeft;
         scoreDisplay.innerText = 0;
-        
+
         // ゲームオーバーメッセージを非表示にする
-        gameOverMessage.style.display = 'none'; 
-        
+        gameOverMessage.style.display = 'none';
+
         // 既存のゲーム要素（魚、ブロック、缶、警告サイン）をすべて削除
-        fishAndBlocks.forEach(item => { 
+        fishAndBlocks.forEach(item => {
             if (item.element && gameContainer.contains(item.element)) {
                 gameContainer.removeChild(item.element);
             }
         });
         fishAndBlocks = []; // 配列もクリア
-        
+
         // 猫の要素が存在すれば削除
         if (cat && gameContainer.contains(cat)) {
             gameContainer.removeChild(cat);
         }
-        
-        fishSpawnCount = 1; 
+
+        fishSpawnCount = 1;
         lastFishSpawnSpeedIncrease = 5;
-        jumpCount = 0; // ★ここを0にリセットまたは確認★
-        isFishAttractionActive = false; 
-        if (fishAttractionTimerId) clearTimeout(fishAttractionTimerId); 
+        jumpCount = 0; // jumpCountを0にリセット
+
+        // ★ここから追加ログとリセット確認★
+        console.log("startGame: jumpCountを", jumpCount, "にリセットしました。");
+        console.log("startGame: isJumpingを", isJumping, "にリセットしました。");
+        // ★ここまで追加ログとリセット確認★
+
+        isFishAttractionActive = false;
+        if (fishAttractionTimerId) clearTimeout(fishAttractionTimerId);
 
         // ゲーム再開時にゲームオーバー画像を削除
         const existingGameOverImage = document.getElementById('game-over-image');
@@ -618,58 +636,57 @@ function generateWarningSign(bottomPosition) {
         if (gameTimerId) clearInterval(gameTimerId);
         if (speedTimerId) clearInterval(speedTimerId);
         if (fishGeneratorId) clearTimeout(fishGeneratorId);
-        // ★ここから追加★ 猫のジャンプ・落下タイマーを確実にクリア
+        // 猫のジャンプ・落下タイマーを確実にクリア
         if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
-        // ★ここまで追加★
-        
+
         // ゲームの要素を初期化
         createCat();
         // 猫の初期位置もここで確実に設定
-        catBottom = -85; // ★ここを-85に設定または確認★
+        catBottom = -85;
         if (cat) cat.style.bottom = catBottom + 'px'; // 猫の要素が存在すればスタイルを適用
-        
+
         // localStorageからハイスコアを読み込む
         const savedHighScore = localStorage.getItem('catJumpHighScore');
         if (savedHighScore !== null) {
-            highScore = parseInt(savedHighScore); 
+            highScore = parseInt(savedHighScore);
         } else {
-            highScore = 0; 
+            highScore = 0;
         }
-        highScoreDisplay.innerText = highScore; 
+        highScoreDisplay.innerText = highScore;
 
         // メインループを開始
         gameTimerId = setInterval(gameLoop, 20);
         document.addEventListener('keydown', control);
-        // タッチ/クリックでのジャンプを追加
+        // タッチ/クリックでのジャンプを追加 (gameContainerからdocumentへ戻したため、元の状態に)
         gameContainer.addEventListener('click', () => {
             if (!isGameOver && jumpCount < MAX_JUMPS) {
                 jump();
             }
         });
         gameContainer.addEventListener('touchstart', (e) => {
-            e.preventDefault(); 
+            e.preventDefault();
             if (!isGameOver && jumpCount < MAX_JUMPS) {
                 jump();
             }
         });
-        
+
         // 制限時間のタイマー
         const countdownTimerId = setInterval(() => {
             if(isGameOver) {
                 clearInterval(countdownTimerId);
                 return;
             }
-            timeLeft--; 
+            timeLeft--;
             timeLeftDisplay.innerText = timeLeft;
-            
+
             // 残り時間に応じて魚の生成数をさらに増やす
-            if (timeLeft <= 10 && fishSpawnCount < 10) { 
-                fishSpawnCount = Math.min(10, fishSpawnCount + 1); 
-            } else if (timeLeft <= 5 && fishSpawnCount < 15) { 
-                fishSpawnCount = Math.min(15, fishSpawnCount + 2); 
-            } else if (timeLeft <= 2 && fishSpawnCount < 20) { 
-                fishSpawnCount = Math.min(20, fishSpawnCount + 5); 
+            if (timeLeft <= 10 && fishSpawnCount < 10) {
+                fishSpawnCount = Math.min(10, fishSpawnCount + 1);
+            } else if (timeLeft <= 5 && fishSpawnCount < 15) {
+                fishSpawnCount = Math.min(15, fishSpawnCount + 2);
+            } else if (timeLeft <= 2 && fishSpawnCount < 20) {
+                fishSpawnCount = Math.min(20, fishSpawnCount + 5);
             }
 
 
@@ -682,14 +699,14 @@ function generateWarningSign(bottomPosition) {
         // 加速タイマー
         speedTimerId = setInterval(() => {
             if (!isGameOver) {
-                gameSpeed += 2; 
-                const speedIncreaseThreshold = 8; 
+                gameSpeed += 2;
+                const speedIncreaseThreshold = 8;
                 if (gameSpeed - lastFishSpawnSpeedIncrease >= speedIncreaseThreshold) {
                     fishSpawnCount++;
-                    lastFishSpawnSpeedIncrease = gameSpeed; 
+                    lastFishSpawnSpeedIncrease = gameSpeed;
                 }
             }
-        }, 4000); 
+        }, 4000);
 
         // アイテム生成を開始
         (function generateItems() {
@@ -697,24 +714,24 @@ function generateWarningSign(bottomPosition) {
 
             for (let i = 0; i < fishSpawnCount; i++) {
                 setTimeout(() => {
-                    generateFish(); 
-                }, i * fishGroupInterval); 
+                    generateFish();
+                }, i * fishGroupInterval);
             }
 
             // アイテム生成の確率を調整
             if (Math.random() > 0.4) { // ブロックの生成確率
                 generateBlock();
             }
-            
-            if (Math.random() > 0.7) { 
+
+            if (Math.random() > 0.7) {
                 generateCan();
             }
 
-            if (Math.random() > 0.85) { 
+            if (Math.random() > 0.85) {
                 generateYellowCan();
             }
 
-            if (Math.random() > 0.95) { 
+            if (Math.random() > 0.95) {
                 generateBlackCan();
             }
 
@@ -733,32 +750,49 @@ function generateWarningSign(bottomPosition) {
                 }, 2000); // 2秒 = 2000ミリ秒
             }
 
-            let baseDelay = 500; 
-            if (timeLeft <= 10) { 
-                baseDelay = 200; 
-            } else if (timeLeft <= 5) { 
-                baseDelay = 100; 
-            } else if (timeLeft <= 2) { 
-                baseDelay = 50; 
+            let baseDelay = 500;
+            if (timeLeft <= 10) {
+                baseDelay = 200;
+            } else if (timeLeft <= 5) {
+                baseDelay = 100;
+            } else if (timeLeft <= 2) {
+                baseDelay = 50;
             }
-            
-            let nextGenerateDelay = Math.random() * 500 + baseDelay; 
-            if (fishSpawnCount > 1) { 
+
+            let nextGenerateDelay = Math.random() * 500 + baseDelay;
+            if (fishSpawnCount > 1) {
                 nextGenerateDelay += (fishSpawnCount - 1) * fishGroupInterval;
             }
-            nextGenerateDelay = Math.max(nextGenerateDelay, 50); 
-            
+            nextGenerateDelay = Math.max(nextGenerateDelay, 50);
+
             // 次のアイテム生成をスケジュール
-            fishGeneratorId = setTimeout(generateItems, nextGenerateDelay); 
+            fishGeneratorId = setTimeout(generateItems, nextGenerateDelay);
         })();
     }
 
     // リスタートボタンのイベント
     restartButton.addEventListener('click', startGame);
-    restartButton.addEventListener('touchstart', (e) => { 
-        e.preventDefault(); 
+    restartButton.addEventListener('touchstart', (e) => {
+        e.preventDefault();
         startGame();
-    }); 
+    });
+
+    // ジャンプボタンのイベントリスナー (index.htmlに追加したボタン用)
+    if (jumpButton) { // ボタンが存在することを確認
+        jumpButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!isGameOver && jumpCount < MAX_JUMPS) {
+                jump();
+            }
+        });
+
+        jumpButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!isGameOver && jumpCount < MAX_JUMPS) {
+                jump();
+            }
+        });
+    }
 
     // 最初のゲームを開始
     startGame();
