@@ -188,3 +188,36 @@ body {
         background-position: -2000px 0px; /* 縮小後の全体幅2000pxを移動 */
     }
 }
+
+/* ゲーム説明文のスタイル */
+#game-description {
+    width: 800px;
+    margin: 20px auto;
+    text-align: left;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+#game-description h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+#game-description p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    display: flex; /* アイコンとテキストを横並びにする */
+    align-items: center; /* 垂直方向の中央揃え */
+}
+
+/* 説明文内の小さなアイコンのスタイル */
+.icon-small {
+    width: 40px; /* アイコンの幅を調整 */
+    height: 25px; /* アイコンの高さを調整 */
+    vertical-align: middle; /* テキストと垂直方向の中央揃え */
+    margin-right: 10px; /* アイコンとテキストの間の余白 */
+}
