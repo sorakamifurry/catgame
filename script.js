@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeLeftDisplay = document.getElementById('time-left');
     const gameOverMessage = document.getElementById('game-over-message');
     const restartButton = document.getElementById('restart-button');
+    const highScoreDisplay = document.getElementById('high-score'); // ★ここから追加★
 
     // グローバル変数
     let cat, catBottom, isJumping, gravity = 0.9;
@@ -12,13 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let gameSpeed = 5;
     let fishAndBlocks = []; // 画面上の魚とブロック、缶をすべて管理する配列
-    let gameTimerId, speedTimerId, fishGeneratorId; // blockGeneratorIdは使用されていないため削除
+    let gameTimerId, speedTimerId, fishGeneratorId; 
     let fishSpawnCount = 1; // 魚の初期生成数
     let lastFishSpawnSpeedIncrease = 5; // 魚の生成数を最後に増やした時のgameSpeed (初期値は最初のgameSpeed)
     let fishGroupInterval = 100; // 魚が連なる際の生成間隔（ms）
     let timeLeft;
     let isFishAttractionActive = false; // 魚の吸い寄せが有効かどうか
     let fishAttractionTimerId; // 吸い寄せ効果のタイマーID
+    let highScore = 0; // ★ここまで追加★
 
     // 2段ジャンプのための変数
     let jumpCount = 0; // 現在のジャンプ回数
@@ -318,6 +320,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
 
+        // ★ここから追加/修正★
+        // ハイスコアの更新と保存
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('catJumpHighScore', highScore); // localStorageに保存
+            highScoreDisplay.innerText = highScore; // 画面のハイスコアを更新
+        }
+        // ★ここまで追加/修正★
+
         // ゲームオーバーメッセージを表示
         gameOverMessage.style.display = 'flex'; 
         
@@ -540,6 +551,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // ゲームの要素を初期化
         createCat();
         
+        // ★ここから追加/修正★
+        // localStorageからハイスコアを読み込む
+        const savedHighScore = localStorage.getItem('catJumpHighScore');
+        if (savedHighScore !== null) {
+            highScore = parseInt(savedHighScore); // 文字列として保存されているので数値に変換
+        } else {
+            highScore = 0; // まだスコアが保存されていなければ0
+        }
+        highScoreDisplay.innerText = highScore; // 画面にハイスコアを表示
+        // ★ここまで追加/修正★
+
         // メインループを開始
         gameTimerId = setInterval(gameLoop, 20);
         document.addEventListener('keydown', control);

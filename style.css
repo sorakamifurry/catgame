@@ -26,7 +26,7 @@ body {
         background-position: 0 bottom;
     }
     to {
-        background-position: -800px bottom; /* ゲームコンテナの幅分だけ左にずらす */
+        background-position: -775px bottom; /* ゲームコンテナの幅分だけ左にずらす */
     }
 }
 
@@ -112,12 +112,22 @@ body {
     display: none;
 }
 
-#game-over-message button {
-    font-size: 0.5em; /* ボタンのフォントサイズはそのまま */
-    padding: 10px 20px;
+#game-over-message button#restart-button {
+    /* font-size: 0.5em; /* 元のフォントサイズ */
+    padding: 0; /* パディングをなくす */
     cursor: pointer;
     /* ボタンの上にスペースを設けて画像と離す */
-    margin-top: 20px; 
+    margin-top: 20px;
+    width: 200px; /* 画像の幅に合わせて調整 */
+    height: 80px; /* 画像の高さに合わせて調整 */
+    background-image: url("restart_button.png"); /* 画像へのパスを指定 */
+    background-size: contain; /* ボタン内に画像を収める */
+    background-repeat: no-repeat; /* 画像を繰り返さない */
+    background-position: center; /* 画像を中央に配置 */
+    border: none; /* ボタンの枠線をなくす */
+    background-color: transparent; /* ボタンの背景色を透明にする */
+    text-indent: -9999px; /* ボタン内のテキストを画面外に移動して非表示にする */
+    overflow: hidden; /* 念のため */
 }
 
 /* ゲームオーバー画像のスタイル */
