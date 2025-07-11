@@ -5,18 +5,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeLeftDisplay = document.getElementById('time-left');
     const gameOverMessage = document.getElementById('game-over-message');
     const restartButton = document.getElementById('restart-button');
-    
+
     // グローバル変数
     let cat, catBottom, isJumping, gravity = 0.9;
     let isGameOver = false;
     let score = 0;
     let gameSpeed = 5;
     let fishAndBlocks = []; // 画面上の魚とブロック、缶をすべて管理する配列
-    let gameTimerId, speedTimerId, fishGeneratorId, blockGeneratorId;
+    let gameTimerId, speedTimerId, fishGeneratorId; // blockGeneratorIdは使用されていないため削除
     let fishSpawnCount = 1; // 魚の初期生成数
     let lastFishSpawnSpeedIncrease = 5; // 魚の生成数を最後に増やした時のgameSpeed (初期値は最初のgameSpeed)
     let fishGroupInterval = 100; // 魚が連なる際の生成間隔（ms）
-    let timeLeft; 
+    let timeLeft;
     let isFishAttractionActive = false; // 魚の吸い寄せが有効かどうか
     let fishAttractionTimerId; // 吸い寄せ効果のタイマーID
 
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function findNonOverlappingBottom(newWidth, newHeight, initialY = -1) {
         let proposedBottom;
         let attempts = 0;
-        const maxAttempts = 50; 
+        const maxAttempts = 50;
         let foundValidPosition = false;
 
         while (attempts < maxAttempts && !foundValidPosition) {
@@ -163,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const blockHeight = getItemDimensions('block').height;
 
                     // 猫の当たり判定の微調整のための定数（gameLoop()のものを再利用）
-                    // ここはgameLoop()の定義と一致させる
                     const CAT_COLLISION_WIDTH = 180;  
                     const CAT_COLLISION_OFFSET_X = 35; 
 
@@ -312,14 +311,21 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(gameTimerId);
         clearInterval(speedTimerId);
         clearTimeout(fishGeneratorId);
-        clearTimeout(blockGeneratorId);
         fishAndBlocks.forEach(item => clearInterval(item.timerId)); 
         
         // 猫のジャンプ・落下タイマーも停止
         if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
 
-        gameOverMessage.classList.remove('hidden'); 
+        // ゲームオーバーメッセージを表示
+        gameOverMessage.style.display = 'flex'; 
+        
+        // ゲームオーバー画像を動的に追加
+        const gameOverImageElement = document.createElement('img');
+        gameOverImageElement.id = 'game-over-image';
+        gameOverImageElement.src = 'GAMEOVER.png'; // GAMEOVER.jpgのURLを指定
+        // 画像をボタンの前に挿入（flexboxなので先頭に追加すれば自動で中央揃えになる）
+        gameOverMessage.insertBefore(gameOverImageElement, restartButton);
     }
 
     // メインのゲームループ
@@ -327,9 +333,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isGameOver) return;
 
         // 猫の当たり判定の微調整のための定数
-        // これらの数値は cat_animation.png の実際の猫のサイズとdiv内の位置に合わせて調整してください。
-        const CAT_COLLISION_WIDTH = 100;  // 猫の実際の見た目の幅（推定） - 修正
-        const CAT_COLLISION_HEIGHT = 250; // 猫の実際の見た目の高さ（推定） - 修正
+        const CAT_COLLISION_WIDTH = 100;  // 猫の実際の見た目の幅（推定）
+        const CAT_COLLISION_HEIGHT = 250; // 猫の実際の見た目の高さ（推定）
         const CAT_COLLISION_OFFSET_X = 35; // 猫のdivの左端から当たり判定の左端までのオフセット
         const CAT_COLLISION_OFFSET_Y = 85; // 猫のdivの下端から当たり判定の下端までのオフセット。
 
@@ -450,7 +455,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const blockHeight = getItemDimensions('block').height;
 
                     // 猫の当たり判定の微調整のための定数（gameLoop()のものを再利用）
-                    // ここはgameLoop()の定義と一致させる
                     const CAT_COLLISION_WIDTH = 180;  
                     const CAT_COLLISION_OFFSET_X = 35; 
 
@@ -498,10 +502,22 @@ document.addEventListener('DOMContentLoaded', () => {
         timeLeft = 30; 
         timeLeftDisplay.innerText = timeLeft; 
         scoreDisplay.innerText = 0;
-        gameOverMessage.classList.add('hidden');
-        fishAndBlocks.forEach(item => gameContainer.removeChild(item.element));
-        fishAndBlocks = [];
-        if (cat) gameContainer.removeChild(cat);
+        
+        // ゲームオーバーメッセージを非表示にする
+        gameOverMessage.style.display = 'none'; 
+        
+        // 既存のゲーム要素（魚、ブロック、缶）をすべて削除
+        fishAndBlocks.forEach(item => {
+            if (item.element && gameContainer.contains(item.element)) {
+                gameContainer.removeChild(item.element);
+            }
+        });
+        fishAndBlocks = []; // 配列もクリア
+        
+        // 猫の要素が存在すれば削除
+        if (cat && gameContainer.contains(cat)) {
+            gameContainer.removeChild(cat);
+        }
         
         fishSpawnCount = 1; 
         lastFishSpawnSpeedIncrease = 5;
@@ -509,8 +525,19 @@ document.addEventListener('DOMContentLoaded', () => {
         isFishAttractionActive = false; 
         if (fishAttractionTimerId) clearTimeout(fishAttractionTimerId); 
 
+        // ゲーム再開時にゲームオーバー画像を削除
+        const existingGameOverImage = document.getElementById('game-over-image');
+        if (existingGameOverImage && gameOverMessage.contains(existingGameOverImage)) {
+            gameOverMessage.removeChild(existingGameOverImage);
+        }
+
+        // 既存のタイマーをすべてクリアして新しいゲームサイクルを開始
+        if (gameTimerId) clearInterval(gameTimerId);
+        if (speedTimerId) clearInterval(speedTimerId);
+        if (fishGeneratorId) clearTimeout(fishGeneratorId);
+        
         // ゲームの要素を初期化
-        createCat(); // ★この行が重要です★
+        createCat();
         
         // メインループを開始
         gameTimerId = setInterval(gameLoop, 20);
@@ -575,23 +602,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, i * fishGroupInterval); 
             }
 
-            if (Math.random() > 0.4) {
+            // アイテム生成の確率を調整
+            if (Math.random() > 0.4) { // ブロックの生成確率
                 generateBlock();
             }
             
-            if (Math.random() > 0.7) { 
+            if (Math.random() > 0.7) { // 白い缶の生成確率
                 generateCan();
             }
 
-            if (Math.random() > 0.85) { 
+            if (Math.random() > 0.85) { // 黄色い缶の生成確率
                 generateYellowCan();
             }
 
-            if (Math.random() > 0.95) { 
+            if (Math.random() > 0.95) { // 黒い缶の生成確率
                 generateBlackCan();
             }
 
-            let baseDelay = 500; 
+            let baseDelay = 500; // 基本のアイテム生成間隔
             if (timeLeft <= 10) { 
                 baseDelay = 200; 
             } else if (timeLeft <= 5) { 
@@ -604,8 +632,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (fishSpawnCount > 1) { 
                 nextGenerateDelay += (fishSpawnCount - 1) * fishGroupInterval;
             }
-            nextGenerateDelay = Math.max(nextGenerateDelay, 50); 
-
+            nextGenerateDelay = Math.max(nextGenerateDelay, 50); // 最低生成間隔
+            
+            // 次のアイテム生成をスケジュール
             fishGeneratorId = setTimeout(generateItems, nextGenerateDelay); 
         })();
     }

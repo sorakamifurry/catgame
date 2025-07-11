@@ -7,21 +7,20 @@ body {
     position: relative;
     width: 800px; /* ゲームの表示幅 */
     height: 500px; /* ゲームの表示高さ */
-    /* background-color: #87CEEB; /* 空のような水色 */ /* 背景色をコメントアウトまたは削除 */
+    /* background-color: #87CEEB; /* 空のような水色 */ /* ここをコメントアウトまたは削除 */
     border: 2px solid #333;
     margin: 0 auto;
     overflow: hidden;
 
-    /* ★ここが前回の修正内容です★ */
+    /* 背景ループのスタイル */
     background-image: url('background.png'); /* 準備した背景画像のパス */
     background-repeat: repeat-x; /* 横方向にリピート */
     background-position: 0 bottom; /* 背景画像をコンテナの下端に合わせる */
     background-size: auto 100%; /* 高さに合わせて画像を拡大縮小し、幅は自動調整 */
-    animation: background-scroll linear infinite; /* アニメーションを適用 */
-    animation-duration: 20s; /* アニメーションの速度。数字を小さくすると速くなる */
+    animation: background-scroll 20s linear infinite; /* アニメーションを適用 */
 }
 
-/* ★ここが前回の修正内容です★ */
+/* 背景ループのアニメーション */
 @keyframes background-scroll {
     from {
         background-position: 0 bottom;
@@ -89,19 +88,43 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(255, 255, 255, 0.8);
+    width: 100%; /* ゲームコンテナ全体を覆う */
+    height: 100%; /* ゲームコンテナ全体を覆う */
+    background-color: rgba(0, 0, 0, 0.7); /* 薄暗い背景色に変更 (透明度70%) */
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 10px; /* 角丸は薄暗い背景にはあまり影響しませんが残しておきます */
     text-align: center;
-    font-size: 3em;
-    color: #E53935;
+    /* font-size と color は下の p 要素で非表示にするため、ここでは不要 */
+    /* font-size: 3em; */
+    /* color: #E53935; */
     z-index: 100;
+
+    /* Flexbox を使用してコンテンツを中央配置 */
+    flex-direction: column; /* 子要素を縦方向に並べる */
+    justify-content: center; /* 縦方向の中央揃え */
+    align-items: center; /* 横方向の中央揃え */
+
+    display: none; /* 初期状態を非表示に設定 */
+}
+
+/* 元の「ゲームオーバー！」テキストを非表示にする */
+#game-over-message p {
+    display: none;
 }
 
 #game-over-message button {
-    font-size: 0.5em;
+    font-size: 0.5em; /* ボタンのフォントサイズはそのまま */
     padding: 10px 20px;
     cursor: pointer;
+    /* ボタンの上にスペースを設けて画像と離す */
+    margin-top: 20px; 
+}
+
+/* ゲームオーバー画像のスタイル */
+#game-over-image {
+    width: 400px; /* 画像の幅を調整（必要に応じて変更してください） */
+    height: auto; /* 高さは元の比率を維持 */
+    margin-bottom: 20px; /* 画像の下にスペースを設けてボタンと離す */
 }
 
 /* 隠すためのクラス */
@@ -114,9 +137,12 @@ body {
     position: absolute;
     width: 130px;
     height: 20px;
-    background-color: #6D4C41; /* 茶色 */
-    border: 2px solid #3E2723;
-    /* ブロックの画像があれば、background-imageプロパティを追加 */
+    /* background-color: #6D4C41; /* 茶色 */
+    /* border: 2px solid #3E2723; */
+    background-image: url("block.png"); /* 画像へのパスを指定 */
+    background-size: cover; /* 要素に合わせて画像を伸縮 */
+    background-repeat: no-repeat; /* 画像を繰り返さない */
+    background-position: center; /* 画像を中央に配置 */
 }
 
 /* 白い缶のスタイル */
@@ -128,10 +154,6 @@ body {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    /* 以前の背景色や枠線は画像を使うので不要 */
-    /* background-color: #E0E0E0; */
-    /* border: 1px solid #9E9E9E; */
-    /* border-radius: 5px; */
 }
 
 /* 黄色い缶のスタイル */
@@ -143,10 +165,6 @@ body {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    /* 以前の背景色や枠線は画像を使うので不要 */
-    /* background-color: #FFEB3B; */
-    /* border: 1px solid #FBC02D; */
-    /* border-radius: 5px; */
 }
 
 /* 黒い缶のスタイル */
@@ -158,10 +176,6 @@ body {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    /* 以前の背景色や枠線は画像を使うので不要 */
-    /* background-color: #212121; */
-    /* border: 1px solid #000000; */
-    /* border-radius: 5px; */
 }
 
 
