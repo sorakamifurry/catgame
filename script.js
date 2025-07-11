@@ -664,6 +664,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // リスタートボタンのイベント
     restartButton.addEventListener('click', startGame);
+    restartButton.addEventListener('touchstart', (e) => { // ★ここから追加★
+        e.preventDefault(); // デフォルトの動作（スクロールなど）を防ぐ
+        startGame();
+    }); // ★ここまで追加★
 
     // 最初のゲームを開始
     startGame();
