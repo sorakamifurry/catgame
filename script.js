@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // キー操作
     function control(e) {
-        if (e.code === 'Space' && !isGameOver && jumpCount < MAX_JUMPS) {
+        if (e.code === 'KeyS' && !isGameOver && jumpCount < MAX_JUMPS) {
             e.preventDefault(); // デフォルトのスクロール動作を無効にする
             jump();
         }
