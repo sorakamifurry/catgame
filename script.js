@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const birdHitSound = document.getElementById('bird-hit-sound');
     const jumpSound = document.getElementById('jump-sound');
     const countdownSound = document.getElementById('countdown-sound');
-    const gameOverWhistle = document.getElementById('game-over-whistle');
+    // ↓ この行を元に戻します
+    const gameOverWhistle = document.getElementById('game-over-whistle'); // ここを修正
     const gameBGM = document.getElementById('game-bgm');
 
     // ★追加: モバイルデバイスかどうかを判定する関数★
@@ -52,6 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const SPAWN_X = 800;
     const CONTAINER_HEIGHT = 500;
+
+    // ★追加: コンボシステム用の変数★
+    let currentCombo = 0;
+    let comboTimerId;
+    const COMBO_TIMEOUT = 1000; // 1秒以内に次の魚を取らないとコンボが途切れる
+    let comboDisplayElement; // コンボ表示用のDOM要素
 
     function getItemDimensions(type) {
         switch (type) {
@@ -139,6 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
         catBottom = -85;
         cat.style.bottom = catBottom + 'px';
         gameContainer.appendChild(cat);
+
+        // ★追加: コンボ表示要素を生成し、猫の子要素として追加★
+        comboDisplayElement = document.createElement('div');
+        comboDisplayElement.id = 'combo-display';
+        comboDisplayElement.classList.add('hidden'); // 最初は非表示
+        cat.appendChild(comboDisplayElement);
     }
 
     function jump() {
@@ -372,6 +385,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
+    // ★追加: コンボをリセットする関数★
+    function resetCombo() {
+        currentCombo = 0;
+        if (comboDisplayElement) {
+            comboDisplayElement.classList.add('hidden');
+            comboDisplayElement.innerText = ''; // テキストもクリア
+        }
+        if (comboTimerId) {
+            clearTimeout(comboTimerId);
+            comboTimerId = null;
+        }
+        console.log("コンボがリセットされました。");
+    }
+
+    // ★追加: コンボ表示を更新する関数★
+    function updateComboDisplay() {
+        if (currentCombo > 0) {
+            comboDisplayElement.innerText = currentCombo + ' COMBO!';
+            comboDisplayElement.classList.remove('hidden');
+            // コンボ表示にアニメーションを追加するためのクラスをトグル
+            comboDisplayElement.classList.remove('combo-flash');
+            void comboDisplayElement.offsetWidth; // 強制的にリフロー
+            comboDisplayElement.classList.add('combo-flash');
+        } else {
+            comboDisplayElement.classList.add('hidden');
+        }
+    }
+
+
     function gameOver() {
         isGameOver = true;
         // ★修正: disableAudioがfalseの場合のみ効果音を再生★
@@ -389,6 +431,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
 
+        // ★追加: ゲームオーバー時にコンボをリセット★
+        resetCombo();
+
         if (score > highScore) {
             highScore = score;
             localStorage.setItem('catJumpHighScore', highScore);
@@ -399,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const gameOverImageElement = document.createElement('img');
         gameOverImageElement.id = 'game-over-image';
-        gameOverImageElement.src = 'gameover.png'; // ここを 'GAMEOVER.png' から 'gameover.png' に修正。元のファイル名に合わせてください。
+        gameOverImageElement.src = 'gameover.png';
         gameOverMessage.insertBefore(gameOverImageElement, restartButton);
     }
 
@@ -478,6 +523,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameContainer.removeChild(item.element);
                     fishAndBlocks.splice(index, 1);
                     score++;
+
+                    // ★追加: コンボ処理★
+                    currentCombo++;
+                    if (comboTimerId) {
+                        clearTimeout(comboTimerId);
+                    }
+                    if (currentCombo >= 2) { // 2コンボ以上でボーナス
+                        const comboBonus = Math.floor(currentCombo / 2); // 2コンボごとに1点ボーナス
+                        score += comboBonus;
+                        console.log(`コンボボーナス！ +${comboBonus}点 (現在のコンボ: ${currentCombo})`);
+                    }
+                    updateComboDisplay(); // コンボ表示を更新
+                    comboTimerId = setTimeout(resetCombo, COMBO_TIMEOUT); // コンボタイムアウトを設定
+
                     scoreDisplay.innerText = score;
                     // ★修正: disableAudioがfalseの場合のみ効果音を再生★
                     if (!disableAudio && fishCollectSound) {
@@ -490,6 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     fishAndBlocks.splice(index, 1);
                     timeLeft += 4;
                     timeLeftDisplay.innerText = timeLeft;
+                    resetCombo(); // 魚以外のアイテムを取ったらコンボリセット
                 }
                 else if (item.type === 'yellowCan') {
                     gameContainer.removeChild(item.element);
@@ -506,6 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 5000);
 
                     console.log("黄色い缶を取りました！魚が吸い寄せられます。");
+                    resetCombo(); // 魚以外のアイテムを取ったらコンボリセット
                 }
                 else if (item.type === 'blackCan') {
                     gameContainer.removeChild(item.element);
@@ -528,6 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log("黒い缶の効果(魚出現ブースト)が終了しました。魚の出現数が元に戻りました (現在の魚生成数: " + fishSpawnCount + ")");
                         fishSpawnBoostTimerId = null;
                     }, BLACK_CAN_BOOST_DURATION);
+                    resetCombo(); // 魚以外のアイテムを取ったらコンボリセット
                 }
                 else if (item.type === 'bird') {
                     gameContainer.removeChild(item.element);
@@ -602,6 +664,10 @@ document.addEventListener('DOMContentLoaded', () => {
         fishAndBlocks = [];
 
         if (cat && gameContainer.contains(cat)) {
+            // ★修正: 猫要素を削除する前にコンボ表示要素も削除★
+            if (comboDisplayElement && cat.contains(comboDisplayElement)) {
+                cat.removeChild(comboDisplayElement);
+            }
             gameContainer.removeChild(cat);
         }
 
@@ -630,6 +696,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fishGeneratorId) clearTimeout(fishGeneratorId);
         if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
+
+        // ★追加: スタート時にコンボをリセット★
+        resetCombo();
 
         createCat();
         catBottom = -85;
