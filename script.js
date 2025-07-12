@@ -731,7 +731,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 generateBlackCan();
             }
 
-            if (Math.random() > 0.98) {
+            if (Math.random() > 0.88) {
                 const birdDimensions = getItemDimensions('bird');
                 const birdBottomPos = findNonOverlappingBottom(birdDimensions.width, birdDimensions.height);
 
