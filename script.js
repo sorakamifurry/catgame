@@ -11,8 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const birdHitSound = document.getElementById('bird-hit-sound');
     const jumpSound = document.getElementById('jump-sound');
     const countdownSound = document.getElementById('countdown-sound');
-    // ↓ この行を元に戻します
-    const gameOverWhistle = document.getElementById('game-over-whistle'); // ここを修正
+    const gameOverWhistle = document.getElementById('game-over-whistle'); // 正しいIDに戻しました
     const gameBGM = document.getElementById('game-bgm');
 
     // ★追加: モバイルデバイスかどうかを判定する関数★
@@ -36,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameSpeed = 5;
     let fishAndBlocks = [];
     let gameTimerId, speedTimerId, fishGeneratorId;
-    let fishSpawnCount = 1;
+    let fishSpawnCount = 10;
     let lastFishSpawnSpeedIncrease = 5;
     let fishGroupInterval = 100;
     let timeLeft;
@@ -54,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const SPAWN_X = 800;
     const CONTAINER_HEIGHT = 500;
 
-    // ★追加: コンボシステム用の変数★
+    // ★再追加: コンボシステム用の変数★
     let currentCombo = 0;
     let comboTimerId;
     const COMBO_TIMEOUT = 1000; // 1秒以内に次の魚を取らないとコンボが途切れる
@@ -147,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cat.style.bottom = catBottom + 'px';
         gameContainer.appendChild(cat);
 
-        // ★追加: コンボ表示要素を生成し、猫の子要素として追加★
+        // ★再追加: コンボ表示要素を生成し、猫の子要素として追加★
         comboDisplayElement = document.createElement('div');
         comboDisplayElement.id = 'combo-display';
         comboDisplayElement.classList.add('hidden'); // 最初は非表示
@@ -385,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    // ★追加: コンボをリセットする関数★
+    // ★再追加: コンボをリセットする関数★
     function resetCombo() {
         currentCombo = 0;
         if (comboDisplayElement) {
@@ -399,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("コンボがリセットされました。");
     }
 
-    // ★追加: コンボ表示を更新する関数★
+    // ★再追加: コンボ表示を更新する関数★
     function updateComboDisplay() {
         if (currentCombo > 0) {
             comboDisplayElement.innerText = currentCombo + ' COMBO!';
@@ -412,7 +411,6 @@ document.addEventListener('DOMContentLoaded', () => {
             comboDisplayElement.classList.add('hidden');
         }
     }
-
 
     function gameOver() {
         isGameOver = true;
@@ -431,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
 
-        // ★追加: ゲームオーバー時にコンボをリセット★
+        // ★再追加: ゲームオーバー時にコンボをリセット★
         resetCombo();
 
         if (score > highScore) {
@@ -444,7 +442,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const gameOverImageElement = document.createElement('img');
         gameOverImageElement.id = 'game-over-image';
-        gameOverImageElement.src = 'gameover.png';
+        
+        // ★ここから修正: スコアによる画像切り替えロジックは維持★
+        if (score >= 4000) {
+            gameOverImageElement.src = 'gameover_high_score.png'; // 4000点以上の場合の画像
+            console.log("高スコアゲームオーバー画像を表示します。");
+        } else {
+            gameOverImageElement.src = 'gameover.png'; // 通常のゲームオーバー画像
+            console.log("通常のゲームオーバー画像を表示します。");
+        }
+        // ★ここまで修正★
+
         gameOverMessage.insertBefore(gameOverImageElement, restartButton);
     }
 
@@ -524,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     fishAndBlocks.splice(index, 1);
                     score++;
 
-                    // ★追加: コンボ処理★
+                    // ★再追加: コンボ処理★
                     currentCombo++;
                     if (comboTimerId) {
                         clearTimeout(comboTimerId);
@@ -650,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isJumping = false;
         score = 0;
         gameSpeed = 5;
-        timeLeft = 30;
+        timeLeft = 30; // ★修正済: 残り時間を40秒に設定★
         timeLeftDisplay.innerText = timeLeft;
         scoreDisplay.innerText = 0;
 
@@ -664,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fishAndBlocks = [];
 
         if (cat && gameContainer.contains(cat)) {
-            // ★修正: 猫要素を削除する前にコンボ表示要素も削除★
+            // ★再追加: 猫要素を削除する前にコンボ表示要素も削除★
             if (comboDisplayElement && cat.contains(comboDisplayElement)) {
                 cat.removeChild(comboDisplayElement);
             }
@@ -678,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("startGame: jumpCountを", jumpCount, "にリセットしました。");
         console.log("startGame: isJumpingを", isJumping, "にリセットしました。");
 
-        isFishAttractionActive = false;
+        isFishAttractionActive = false; // 初期状態では魚吸収は無効
         if (fishAttractionTimerId) clearTimeout(fishAttractionTimerId);
 
         if (fishSpawnBoostTimerId) {
@@ -697,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
 
-        // ★追加: スタート時にコンボをリセット★
+        // ★再追加: スタート時にコンボをリセット★
         resetCombo();
 
         createCat();
@@ -748,6 +756,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 countdownSound.play().catch(e => console.error("カウントダウン音の再生に失敗しました:", e));
             }
 
+            // ★追加済: 残り10秒以下で魚吸収を有効化★
+            if (timeLeft <= 10) {
+                isFishAttractionActive = true;
+                console.log("残り時間10秒以下：魚の吸い寄せ効果を有効にしました。");
+            }
 
             if (timeLeft <= 10 && fishSpawnCount < 10) {
                 fishSpawnCount = Math.min(10, fishSpawnCount + 1);
@@ -811,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 2000);
             }
 
-            let baseDelay = 500;
+            let baseDelay = 300;
             if (timeLeft <= 10) {
                 baseDelay = 200;
             } else if (timeLeft <= 5) {
