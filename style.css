@@ -3,6 +3,14 @@ body {
     font-family: sans-serif;
 }
 
+/* ゲームタイトルロゴのスタイルを追加 */
+#game-title-logo {
+    display: block; /* ブロック要素として配置 */
+    margin: 10px auto 20px auto; /* 上下マージンと中央揃え */
+    max-width: 400px; /* 最大幅を設定（必要に応じて調整） */
+    height: auto; /* 高さ自動調整で縦横比を維持 */
+}
+
 #game-container {
     position: relative;
     width: 800px; /* ゲームの表示幅 */

@@ -22,6 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let isFishAttractionActive = false; // 魚の吸い寄せが有効かどうか
     let fishAttractionTimerId; // 吸い寄せ効果のタイマーID
     let highScore = 0;
+    // 黒い缶の魚生成ブースト関連の変数
+    let fishSpawnBoostTimerId; // 魚生成ブーストのタイマーID
+    const BLACK_CAN_FISH_BOOST_AMOUNT = 5; // 黒い缶で一時的に増やす魚の出現数
+    const BLACK_CAN_BOOST_DURATION = 10000; // 黒い缶の効果持続時間 (10秒 = 10000ミリ秒)
 
     // 2段ジャンプのための変数
     let jumpCount = 0; // 現在のジャンプ回数
@@ -129,15 +133,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ジャンプ処理
     function jump() {
-        console.log("jump()が呼び出されました。現在のjumpCount:", jumpCount, "isJumping:", isJumping); // ★追加ログ★
+        console.log("jump()が呼び出されました。現在のjumpCount:", jumpCount, "isJumping:", isJumping);
         if (jumpCount >= MAX_JUMPS) {
-            console.log("jump(): MAX_JUMPS (" + MAX_JUMPS + ") に達したため、ジャンプできません。"); // ★追加ログ★
+            console.log("jump(): MAX_JUMPS (" + MAX_JUMPS + ") に達したため、ジャンプできません。");
             return;
         }
 
         isJumping = true;
         jumpCount++;
-        console.log("jump(): ジャンプ実行。jumpCountが", jumpCount, "になりました。"); // ★追加ログ★
+        console.log("jump(): ジャンプ実行。jumpCountが", jumpCount, "になりました。");
 
         if (cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat.downTimerId) clearInterval(cat.downTimerId);
@@ -169,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 catBottom = -85;
                 cat.style.bottom = '-85px';
                 jumpCount = 0;
-                console.log("fall(): 地面に着地。jumpCountを", jumpCount, "にリセットしました。"); // ★追加ログ★
+                console.log("fall(): 地面に着地。jumpCountを", jumpCount, "にリセットしました。");
                 return;
             }
 
@@ -210,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         catBottom = targetLandedCatBottom;
                         cat.style.bottom = catBottom + 'px';
                         jumpCount = 0;
-                        console.log("fall(): ブロックに着地。jumpCountを", jumpCount, "にリセットしました。"); // ★追加ログ★
+                        console.log("fall(): ブロックに着地。jumpCountを", jumpCount, "にリセットしました。");
                         return;
                     }
                 }
@@ -501,7 +505,7 @@ function generateWarningSign(bottomPosition) {
                 else if (item.type === 'can') {
                     gameContainer.removeChild(item.element);
                     fishAndBlocks.splice(index, 1);
-                    timeLeft += 3;
+                    timeLeft += 4;
                     timeLeftDisplay.innerText = timeLeft;
                 }
                 else if (item.type === 'yellowCan') {
@@ -526,6 +530,26 @@ function generateWarningSign(bottomPosition) {
 
                     gameSpeed = Math.max(1, gameSpeed - 10);
                     console.log("黒い缶を取りました！ゲームスピードが低下し、ここから加速します。現在のスピード:", gameSpeed);
+
+                    // 魚の出現率一時増加
+                    if (fishSpawnBoostTimerId) {
+                        clearTimeout(fishSpawnBoostTimerId); // 既存のタイマーがあればクリア
+                    }
+                    
+                    // 魚の生成数を増加させる
+                    fishSpawnCount += BLACK_CAN_FISH_BOOST_AMOUNT;
+                    // 最大値を設定（例えば20）
+                    fishSpawnCount = Math.min(20, fishSpawnCount); 
+                    
+                    console.log("黒い缶の効果: 魚の出現数が増加しました (現在の魚生成数: " + fishSpawnCount + ")");
+
+                    // 10秒後に魚の出現数を元に戻すタイマーを設定
+                    fishSpawnBoostTimerId = setTimeout(() => {
+                        // ブーストが終了する際、増加させた分だけ減算する
+                        fishSpawnCount = Math.max(1, fishSpawnCount - BLACK_CAN_FISH_BOOST_AMOUNT);
+                        console.log("黒い缶の効果(魚出現ブースト)が終了しました。魚の出現数が元に戻りました (現在の魚生成数: " + fishSpawnCount + ")");
+                        fishSpawnBoostTimerId = null; // タイマーIDをクリア
+                    }, BLACK_CAN_BOOST_DURATION);
                 }
                 else if (item.type === 'bird') {
                     gameContainer.removeChild(item.element);
@@ -585,9 +609,7 @@ function generateWarningSign(bottomPosition) {
 
     // ゲーム開始処理
     function startGame() {
-        // ★ここから追加ログとリセット確認★
         console.log("--- startGameが呼び出されました ---");
-        // ★ここまで追加ログとリセット確認★
 
         // 変数をリセット
         isGameOver = false;
@@ -599,7 +621,7 @@ function generateWarningSign(bottomPosition) {
         scoreDisplay.innerText = 0;
 
         // ゲームオーバーメッセージを非表示にする
-        gameOverMessage.style.display = 'none';
+        gameOverMessage.style.display = 'none'; // ★この行が追加・修正済み★
 
         // 既存のゲーム要素（魚、ブロック、缶、警告サイン）をすべて削除
         fishAndBlocks.forEach(item => {
@@ -618,13 +640,17 @@ function generateWarningSign(bottomPosition) {
         lastFishSpawnSpeedIncrease = 5;
         jumpCount = 0; // jumpCountを0にリセット
 
-        // ★ここから追加ログとリセット確認★
         console.log("startGame: jumpCountを", jumpCount, "にリセットしました。");
         console.log("startGame: isJumpingを", isJumping, "にリセットしました。");
-        // ★ここまで追加ログとリセット確認★
 
         isFishAttractionActive = false;
         if (fishAttractionTimerId) clearTimeout(fishAttractionTimerId);
+
+        // 黒い缶の効果関連のタイマーをリセット
+        if (fishSpawnBoostTimerId) {
+            clearTimeout(fishSpawnBoostTimerId);
+            fishSpawnBoostTimerId = null;
+        }
 
         // ゲーム再開時にゲームオーバー画像を削除
         const existingGameOverImage = document.getElementById('game-over-image');
