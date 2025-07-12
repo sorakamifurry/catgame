@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const gameOverImageElement = document.createElement('img');
         gameOverImageElement.id = 'game-over-image';
-        gameOverImageElement.src = 'gameover.png'; // ここを 'GAMEOVER.png' から 'gameover.png' に修正。元のファイル名に合わせてください。
+        gameOverImageElement.src = 'GAMEOVER.png'; // ここを 'GAMEOVER.png' から 'gameover.png' に修正。元のファイル名に合わせてください。
         gameOverMessage.insertBefore(gameOverImageElement, restartButton);
     }
 
