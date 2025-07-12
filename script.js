@@ -6,7 +6,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameOverMessage = document.getElementById('game-over-message');
     const restartButton = document.getElementById('restart-button');
     const highScoreDisplay = document.getElementById('high-score');
-    const jumpButton = document.getElementById('jump-button'); // 追加したジャンプボタン
+    const jumpButton = document.getElementById('jump-button');
+    const fishCollectSound = document.getElementById('fish-collect-sound');
+    const birdHitSound = document.getElementById('bird-hit-sound');
+    const jumpSound = document.getElementById('jump-sound');
+    const countdownSound = document.getElementById('countdown-sound'); // ★カウントダウンの効果音要素を追加★
+　　const gameOverWhistle = document.getElementById('game-over-whistle'); // これが笛の音の要素です
+    const gameBGM = document.getElementById('game-bgm'); // ★追加: BGM要素★
+
+    // BGMの初回再生を試みるためのフラグ
+    let hasInteracted = false; // ★追加: ユーザーが操作したかどうかのフラグ★
 
     // グローバル変数
     let cat, catBottom, isJumping, gravity = 0.9;
@@ -142,6 +151,12 @@ document.addEventListener('DOMContentLoaded', () => {
         isJumping = true;
         jumpCount++;
         console.log("jump(): ジャンプ実行。jumpCountが", jumpCount, "になりました。");
+
+        // ジャンプ音の再生
+        if (jumpSound) {
+            jumpSound.currentTime = 0;
+            jumpSound.play().catch(e => console.error("ジャンプ音の再生に失敗しました:", e));
+        }
 
         if (cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat.downTimerId) clearInterval(cat.downTimerId);
@@ -386,6 +401,10 @@ function generateWarningSign(bottomPosition) {
     // ゲームオーバー処理
     function gameOver() {
         isGameOver = true;
+        gameOverWhistle.play(); // ここで笛の音が再生されます
+        gameBGM.pause(); // ★追加: BGMを一時停止★
+        gameBGM.currentTime = 0; // BGMの再生位置を最初に戻す
+
         // すべてのタイマーを停止
         clearInterval(gameTimerId);
         clearInterval(speedTimerId);
@@ -420,7 +439,7 @@ function generateWarningSign(bottomPosition) {
 
         // 猫の当たり判定の微調整のための定数
         const CAT_COLLISION_WIDTH = 100;
-        const CAT_COLLISION_HEIGHT = 160; // ユーザーの指示により修正済み
+        const CAT_COLLISION_HEIGHT = 160;
         const CAT_COLLISION_OFFSET_X = 35;
         const CAT_COLLISION_OFFSET_Y = 85;
 
@@ -501,11 +520,15 @@ function generateWarningSign(bottomPosition) {
                     fishAndBlocks.splice(index, 1);
                     score++;
                     scoreDisplay.innerText = score;
+                    if (fishCollectSound) {
+                        fishCollectSound.currentTime = 0;
+                        fishCollectSound.play().catch(e => console.error("効果音の再生に失敗しました:", e));
+                    }
                 }
                 else if (item.type === 'can') {
                     gameContainer.removeChild(item.element);
                     fishAndBlocks.splice(index, 1);
-                    timeLeft += 4;
+                    timeLeft += 4; // 白い缶の時間を3秒から4秒に変更済み
                     timeLeftDisplay.innerText = timeLeft;
                 }
                 else if (item.type === 'yellowCan') {
@@ -533,14 +556,14 @@ function generateWarningSign(bottomPosition) {
 
                     // 魚の出現率一時増加
                     if (fishSpawnBoostTimerId) {
-                        clearTimeout(fishSpawnBoostTimerId); // 既存のタイマーがあればクリア
+                        clearTimeout(fishSpawnBoostTimerId);
                     }
-                    
+
                     // 魚の生成数を増加させる
                     fishSpawnCount += BLACK_CAN_FISH_BOOST_AMOUNT;
                     // 最大値を設定（例えば20）
-                    fishSpawnCount = Math.min(20, fishSpawnCount); 
-                    
+                    fishSpawnCount = Math.min(20, fishSpawnCount);
+
                     console.log("黒い缶の効果: 魚の出現数が増加しました (現在の魚生成数: " + fishSpawnCount + ")");
 
                     // 10秒後に魚の出現数を元に戻すタイマーを設定
@@ -548,12 +571,16 @@ function generateWarningSign(bottomPosition) {
                         // ブーストが終了する際、増加させた分だけ減算する
                         fishSpawnCount = Math.max(1, fishSpawnCount - BLACK_CAN_FISH_BOOST_AMOUNT);
                         console.log("黒い缶の効果(魚出現ブースト)が終了しました。魚の出現数が元に戻りました (現在の魚生成数: " + fishSpawnCount + ")");
-                        fishSpawnBoostTimerId = null; // タイマーIDをクリア
+                        fishSpawnBoostTimerId = null;
                     }, BLACK_CAN_BOOST_DURATION);
                 }
                 else if (item.type === 'bird') {
                     gameContainer.removeChild(item.element);
                     fishAndBlocks.splice(index, 1);
+                    if (birdHitSound) {
+                        birdHitSound.currentTime = 0;
+                        birdHitSound.play().catch(e => console.error("鳥の効果音の再生に失敗しました:", e));
+                    }
                     gameOver();
                 }
             }
@@ -621,7 +648,7 @@ function generateWarningSign(bottomPosition) {
         scoreDisplay.innerText = 0;
 
         // ゲームオーバーメッセージを非表示にする
-        gameOverMessage.style.display = 'none'; // ★この行が追加・修正済み★
+        gameOverMessage.style.display = 'none';
 
         // 既存のゲーム要素（魚、ブロック、缶、警告サイン）をすべて削除
         fishAndBlocks.forEach(item => {
@@ -638,7 +665,7 @@ function generateWarningSign(bottomPosition) {
 
         fishSpawnCount = 1;
         lastFishSpawnSpeedIncrease = 5;
-        jumpCount = 0; // jumpCountを0にリセット
+        jumpCount = 0;
 
         console.log("startGame: jumpCountを", jumpCount, "にリセットしました。");
         console.log("startGame: isJumpingを", isJumping, "にリセットしました。");
@@ -670,7 +697,14 @@ function generateWarningSign(bottomPosition) {
         createCat();
         // 猫の初期位置もここで確実に設定
         catBottom = -85;
-        if (cat) cat.style.bottom = catBottom + 'px'; // 猫の要素が存在すればスタイルを適用
+        if (cat) cat.style.bottom = catBottom + 'px';
+
+        // BGMを再生 (再開)
+        gameBGM.play().catch(error => { // ★ここ: BGM再生★
+            console.log("BGMの再生に失敗しました:", error);
+            // ユーザーの操作がないとautoplayが許可されないブラウザ対策
+            // 必要に応じて、ユーザーに再生ボタンを表示するなどの代替策を検討
+        });
 
         // localStorageからハイスコアを読み込む
         const savedHighScore = localStorage.getItem('catJumpHighScore');
@@ -684,7 +718,7 @@ function generateWarningSign(bottomPosition) {
         // メインループを開始
         gameTimerId = setInterval(gameLoop, 20);
         document.addEventListener('keydown', control);
-        // タッチ/クリックでのジャンプを追加 (gameContainerからdocumentへ戻したため、元の状態に)
+        // タッチ/クリックでのジャンプを追加
         gameContainer.addEventListener('click', () => {
             if (!isGameOver && jumpCount < MAX_JUMPS) {
                 jump();
@@ -705,6 +739,13 @@ function generateWarningSign(bottomPosition) {
             }
             timeLeft--;
             timeLeftDisplay.innerText = timeLeft;
+
+            // ★残り時間が10秒以下になったらカウントダウン音を鳴らす★
+            if (timeLeft <= 10 && timeLeft > 0 && countdownSound) { // timeLeft > 0 を追加して0秒では鳴らないようにする
+                countdownSound.currentTime = 0; // 再生位置を先頭に戻す
+                countdownSound.play().catch(e => console.error("カウントダウン音の再生に失敗しました:", e));
+            }
+
 
             // 残り時間に応じて魚の生成数をさらに増やす
             if (timeLeft <= 10 && fishSpawnCount < 10) {
@@ -745,7 +786,7 @@ function generateWarningSign(bottomPosition) {
             }
 
             // アイテム生成の確率を調整
-            if (Math.random() > 0.4) { // ブロックの生成確率
+            if (Math.random() > 0.4) {
                 generateBlock();
             }
 
@@ -762,7 +803,7 @@ function generateWarningSign(bottomPosition) {
             }
 
             // 鳥の出現に警告サインを追加
-            if (Math.random() > 0.98) { // 2%の確率で鳥が出現
+            if (Math.random() > 0.98) {
                 const birdDimensions = getItemDimensions('bird');
                 // まず鳥が出現するbottom座標を決定
                 const birdBottomPos = findNonOverlappingBottom(birdDimensions.width, birdDimensions.height);
@@ -772,8 +813,8 @@ function generateWarningSign(bottomPosition) {
 
                 // 2秒後に鳥を生成
                 setTimeout(() => {
-                    generateBird(birdBottomPos); // 決定したbottom座標で鳥を生成
-                }, 2000); // 2秒 = 2000ミリ秒
+                    generateBird(birdBottomPos);
+                }, 2000);
             }
 
             let baseDelay = 500;
@@ -796,6 +837,24 @@ function generateWarningSign(bottomPosition) {
         })();
     }
 
+    // ★追加: ユーザーの最初の操作でBGMを再生するリスナー★
+    const playBGMOnFirstInteraction = () => {
+        if (!hasInteracted) {
+            gameBGM.play().then(() => {
+                hasInteracted = true;
+                console.log("BGMがユーザー操作により再生されました。");
+                // 一度再生されたら、これらのリスナーは不要なので削除
+                document.removeEventListener('click', playBGMOnFirstInteraction);
+                document.removeEventListener('keydown', playBGMOnFirstInteraction);
+            }).catch(error => {
+                console.log("BGMの初回再生に失敗しました:", error);
+            });
+        }
+    };
+
+    document.addEventListener('click', playBGMOnFirstInteraction); // ★追加★
+    document.addEventListener('keydown', playBGMOnFirstInteraction); // ★追加★
+
     // リスタートボタンのイベント
     restartButton.addEventListener('click', startGame);
     restartButton.addEventListener('touchstart', (e) => {
@@ -804,7 +863,7 @@ function generateWarningSign(bottomPosition) {
     });
 
     // ジャンプボタンのイベントリスナー (index.htmlに追加したボタン用)
-    if (jumpButton) { // ボタンが存在することを確認
+    if (jumpButton) {
         jumpButton.addEventListener('click', (e) => {
             e.preventDefault();
             if (!isGameOver && jumpCount < MAX_JUMPS) {
