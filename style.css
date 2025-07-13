@@ -1,40 +1,41 @@
 body {
     text-align: center;
     font-family: sans-serif;
+    margin: 0; /* body のデフォルトマージンをリセット */
 }
 
-/* ゲームタイトルロゴのスタイルを追加 */
+/* ゲームタイトルロゴのスタイル */
 #game-title-logo {
-    display: block; /* ブロック要素として配置 */
-    margin: 10px auto 20px auto; /* 上下マージンと中央揃え */
-    max-width: 400px; /* 最大幅を設定（必要に応じて調整） */
-    height: auto; /* 高さ自動調整で縦横比を維持 */
+    display: block;
+    margin: 10px auto 20px auto;
+    max-width: 400px;
+    height: auto;
 }
 
-/* ★追加: ゲームコンテナをラップする新しいdivのスタイル★ */
+/* ゲームコンテナをラップするdivのスタイル */
 #game-wrapper {
     position: relative;
     width: 800px; /* デスクトップの基準幅 */
     height: 500px; /* デスクトップの基準高さ */
-    margin: 0 auto; /* デスクトップで中央に配置 */
-    border: 2px solid #333; /* ゲームの枠線 */
-    overflow: hidden; /* コンテンツがはみ出さないように */
+    margin: 20px auto 0 auto; /* デスクトップで中央に配置、上マージン調整 */
+    border: 2px solid #333;
+    overflow: hidden;
+    background-color: #e0f2f7; /* デフォルトの背景色 */
 }
 
 #game-container {
-    position: relative;
-    width: 800px; /* ゲームの表示幅 - 内部の要素の基準となるサイズ */
-    height: 500px; /* ゲームの表示高さ - 内部の要素の基準となるサイズ */
-    /* border: 2px solid #333; /* 枠線は #game-wrapper に移動 */
-    margin: 0 auto; /* 水平方向の中央揃え (デスクトップ用) */
+    position: absolute;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
+    transform-origin: top left; /* スケールの基準点を左上に設定 */
 
     /* 背景ループのスタイル */
-    background-image: url('background.png'); /* 準備した背景画像のパス */
-    background-repeat: repeat-x; /* 横方向にリピート */
-    background-position: 0 bottom; /* 背景画像をコンテナの下端に合わせる */
-    background-size: auto 100%; /* 高さに合わせて画像を拡大縮小し、幅は自動調整 */
-    animation: background-scroll 20s linear infinite; /* アニメーションを適用 */
+    background-image: url('background.png');
+    background-repeat: repeat-x;
+    background-position: 0 bottom;
+    background-size: auto 100%;
+    animation: background-scroll 20s linear infinite;
 }
 
 /* 背景ループのアニメーション */
@@ -43,65 +44,60 @@ body {
         background-position: 0 bottom;
     }
     to {
-        background-position: -775px bottom; /* ゲームコンテナの幅分だけ左にずらす */
+        background-position: -775px bottom;
     }
 }
 
-/* インフォメーションバーのスタイル（ファミコンマリオ風に調整） */
+/* インフォメーションバーのスタイル */
 #info-bar {
-    position: absolute; /* game-container を基準に絶対配置 */
-    top: 10px; /* 上からの位置 */
+    position: absolute;
+    top: 10px;
     left: 0;
     right: 0;
-    margin: auto; /* 水平方向の中央揃え */
-    width: 90%; /* game-containerの幅に合わせる（調整可能） */
+    margin: auto;
+    width: 90%;
     display: flex;
-    justify-content: space-around; /* 要素を均等に配置 */
-    font-family: 'Press Start 2P', cursive; /* マリオっぽいフォント */
-    color: white; /* 文字色を白に */
-    font-size: 20px; /* フォントサイズを調整 */
-    z-index: 50; /* 他の要素より手前に表示 */
-    text-shadow: 2px 2px 0px #000; /* 黒い影を追加して視認性アップ */
+    justify-content: space-around;
+    font-family: 'Press Start 2P', cursive;
+    color: white;
+    font-size: 16px;
+    z-index: 50;
+    text-shadow: 2px 2px 0px #000;
 }
 
-/* スコア表示たちの個別のスタイル（黒枠を削除） */
 #score-board,
 #high-score-board,
 #timer-board {
-    background-color: transparent; /* 背景色を透明に */
-    border: none; /* 枠線を削除 */
-    padding: 0; /* パディングを削除 */
-    border-radius: 0; /* 角丸を削除 */
-    min-width: unset; /* 最小幅をリセット */
-    text-align: center; /* テキストを中央揃え */
-    display: block; /* ブロック要素にして縦に並べる */
-    line-height: 1; /* 行の高さを調整して詰める */
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    min-width: unset;
+    text-align: center;
+    display: block;
+    line-height: 1;
 }
 
-/* スコアや時間の数字部分 */
 #score-board span#score,
 #high-score-board span#high-score,
 #timer-board span#time-left {
-    display: block; /* 数字部分を新しい行に表示 */
-    font-size: 1.5em; /* 数字を大きく */
-    font-weight: bold; /* 太字 */
-    margin-top: 5px; /* ラベルとの間隔 */
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 5px;
 }
 
 #cat {
     position: absolute;
     width: 250px;
-    height: 250px; 
-    
+    height: 250px;
     background-image: url('cat_animation.png');
     background-repeat: no-repeat;
     background-position: 0 0;
-    background-size: 2000px auto; 
-    
+    background-size: 2000px auto;
     left: 50px;
-    bottom: -85px; 
-
-    animation: cat-run 0.5s steps(8) infinite; 
+    bottom: -85px;
+    animation: cat-run 0.5s steps(8) infinite;
 }
 
 .fish {
@@ -120,8 +116,8 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
+    width: 80%;
+    max-width: 400px;
     background-color: rgba(0, 0, 0, 0.7);
     padding: 20px;
     border-radius: 10px;
@@ -133,25 +129,24 @@ body {
     display: none;
 }
 
-/* ゲームオーバー画像そのもののスタイル */
 #game-over-image {
-    max-width: 100%; /* 親要素（ゲームコンテナ）の幅の100%まで */
-    max-height: 75%; /* 親要素（ゲームコンテナ）の高さの75%まで */
-    width: auto; /* 縦横比を維持 */
-    height: auto; /* 縦横比を維持 */
-    margin-bottom: 0px; /* ボタンとの間にスペース */
+    max-width: 100%;
+    max-height: 70%;
+    width: auto;
+    height: auto;
+    margin-bottom: 10px;
 }
 
 #game-over-message p {
-    display: none; /* ゲームオーバーテキストは画像に置き換えるため非表示 */
+    display: none;
 }
 
 #game-over-message button#restart-button {
     padding: 0;
     cursor: pointer;
-    margin-top: 20px;
-    width: 200px;
-    height: 80px;
+    margin-top: 10px;
+    width: 150px;
+    height: 60px;
     background-image: url("restart_button.png");
     background-size: contain;
     background-repeat: no-repeat;
@@ -178,38 +173,19 @@ body {
     background-position: center;
 }
 
-/* 白い缶のスタイル */
-.can {
+/* 缶のスタイル */
+.can, .yellow-can, .black-can {
     position: absolute;
     width: 30px;
     height: 40px;
-    background-image: url("whitecan.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
 }
 
-/* 黄色い缶のスタイル */
-.yellow-can {
-    position: absolute;
-    width: 30px;
-    height: 40px;
-    background-image: url("yellowcan.png");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-/* 黒い缶のスタイル */
-.black-can {
-    position: absolute;
-    width: 30px;
-    height: 40px;
-    background-image: url("blackcan.png");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
+.can { background-image: url("whitecan.png"); }
+.yellow-can { background-image: url("yellowcan.png"); }
+.black-can { background-image: url("blackcan.png"); }
 
 /* 鳥のスタイル */
 .bird {
@@ -227,44 +203,42 @@ body {
     position: absolute;
     width: 100px;
     height: 100px;
-    background-image: url("exclamation_mark.png"); 
+    background-image: url("exclamation_mark.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    z-index: 10; 
-    opacity: 1; 
-    transition: opacity 0.3s ease-out; 
+    z-index: 10;
+    opacity: 1;
+    transition: opacity 0.3s ease-out;
 }
 
 /* アニメーションの定義 */
 @keyframes cat-run {
-    from {
-        background-position: 0px 0px;
-    }
-    to {
-        background-position: -2000px 0px;
-    }
+    from { background-position: 0px 0px; }
+    to { background-position: -2000px 0px; }
 }
 
 /* ゲーム説明文のスタイル */
 #game-description {
-    width: 800px;
+    width: 90%;
+    max-width: 800px;
     margin: 20px auto;
     text-align: left;
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 8px;
     background-color: #f9f9f9;
+    font-size: 0.9em;
 }
 
 #game-description h2 {
     text-align: center;
     color: #333;
     margin-bottom: 15px;
+    font-size: 1.2em;
 }
 
 #game-description p {
-    font-size: 1.1em;
     line-height: 1.6;
     margin-bottom: 8px;
     display: flex;
@@ -273,8 +247,8 @@ body {
 
 /* 説明文内の小さなアイコンのスタイル */
 .icon-small {
-    width: 40px;
-    height: 25px;
+    width: 30px;
+    height: 20px;
     vertical-align: middle;
     margin-right: 10px;
 }
@@ -282,26 +256,24 @@ body {
 /* コンボ表示のスタイル */
 #cat #combo-display {
     position: absolute;
-    top: -50px; /* 猫の頭の上あたりに配置 */
+    top: -30px; /* 位置を調整 */
     left: 50%;
     transform: translateX(-50%);
-    font-family: 'Press Start 2P', cursive; /* スコアと同じフォント */
-    font-size: 1.2em; /* 適切なサイズに調整 */
-    color: yellow; /* 目立つ色 */
-    text-shadow: 2px 2px 0px #000; /* 影をつけて見やすく */
-    white-space: nowrap; /* テキストが折り返さないように */
-    z-index: 60; /* info-barより手前に表示 */
-    pointer-events: none; /* クリックイベントを透過 */
-    opacity: 1; /* 初期表示は完全な不透明度 */
-    transition: opacity 0.3s ease-out; /* フェードアウトアニメーション */
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.9em; /* サイズを調整 */
+    color: yellow;
+    text-shadow: 2px 2px 0px #000;
+    white-space: nowrap;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease-out;
 }
 
-/* コンボ表示を隠すためのクラス */
 #cat #combo-display.hidden {
     opacity: 0;
 }
 
-/* コンボ表示のアニメーション */
 @keyframes combo-flash {
     0% { transform: translateX(-50%) scale(1); opacity: 1; }
     50% { transform: translateX(-50%) scale(1.1); opacity: 1; }
@@ -312,69 +284,69 @@ body {
     animation: combo-flash 0.3s ease-out;
 }
 
-/* ★追加: モバイルデバイス向けのスタイル調整 (画面幅が768px以下のデバイスに適用) ★ */
+/* モバイルデバイス向けのスタイル調整 */
 @media (max-width: 768px) {
-    /* ゲーム全体をラップする #game-wrapper をビューポート幅に合わせる */
     #game-wrapper {
-        width: 100vw; /* ビューポートの横幅いっぱいに */
-        /* 縦横比 (800:500) を維持して高さを計算 */
+        width: 100vw;
         height: calc(100vw * (500 / 800));
-        margin: 0 auto; /* 中央揃え */
-        border: none; /* スケール時に枠線が太くならないように */
-        overflow: hidden;
+        margin: 0 auto;
+        border: none;
+        position: relative; /* 相対配置に戻す */
     }
 
-    /* #game-container の中身全体を #game-wrapper のサイズに合わせて拡大縮小 */
     #game-container {
-        transform-origin: top left; /* 左上を基準に拡大縮小 */
-        transform: scale(calc(100vw / 800)); /* スケールファクター = (現在のビューポート幅 / 元のゲーム幅) */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 800px; /* 元のサイズを維持 */
+        height: 500px; /* 元のサイズを維持 */
+        transform-origin: top left;
+        transform: scale(calc(100vw / 800));
     }
 
-    /* 各要素のモバイル表示調整 */
     #game-title-logo {
-        max-width: 90%; /* ロゴを画面幅に合わせて縮小 */
-        margin-top: 5px;
-        margin-bottom: 10px;
+        max-width: 80%;
+        margin-top: 10px;
+        margin-bottom: 15px;
     }
 
     #info-bar {
-        font-size: 12px; /* 情報バーの文字サイズを小さく */
+        font-size: 10px;
         top: 5px;
         width: 95%;
     }
 
     #info-bar span {
-        font-size: 1.2em; /* スコアなどの数字は比較的大きく保つ */
+        font-size: 1.1em;
     }
 
     #game-description {
-        width: 90vw; /* 説明文の幅を調整 */
-        margin: 10px auto;
+        width: 95vw;
+        margin: 15px auto;
         padding: 10px;
-        font-size: 0.9em;
+        font-size: 0.8em;
     }
 
     #game-description h2 {
-        font-size: 1.1em;
+        font-size: 1em;
         margin-bottom: 10px;
     }
 
     #game-description p {
-        font-size: 0.85em;
+        font-size: 0.75em;
         margin-bottom: 5px;
     }
 
     .icon-small {
-        width: 30px; /* アイコンを小さく */
-        height: 20px;
+        width: 25px;
+        height: 17px;
         margin-right: 5px;
     }
 
     #jump-button {
-        width: 90vw; /* ジャンプボタンを横幅いっぱいに */
-        height: auto;
-        padding: 20px 0; /* タッチしやすいパディングに */
-        font-size: 2em; /* フォントサイズを調整 */
+        width: 95vw;
+        padding: 15px 0;
+        font-size: 1.5em;
         margin-top: 10px;
     }
 }
