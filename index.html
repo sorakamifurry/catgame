@@ -5,20 +5,22 @@
     <title>猫ジャンプゲーム</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> </head>
 <body>
     <img src="logo.png" alt="猫ジャンプゲーム" id="game-title-logo">
     
-    <div id="game-container">
-        <div id="info-bar">
-            <div id="score-board">SCORE: <span id="score">0</span></div>
-            <div id="high-score-board">HI-SCORE: <span id="high-score">0</span></div>
-            <div id="timer-board">TIME: <span id="time-left">30</span></div>
-        </div>
+    <div id="game-wrapper">
+        <div id="game-container">
+            <div id="info-bar">
+                <div id="score-board">SCORE: <span id="score">0</span></div>
+                <div id="high-score-board">HI-SCORE: <span id="high-score">0</span></div>
+                <div id="timer-board">TIME: <span id="time-left">30</span></div>
+            </div>
 
-        <div id="game-over-message" class="hidden">
-            <img id="game-over-image" src="gameover.png" alt="Game Over">
-            <button id="restart-button">もう一度遊ぶ</button>
+            <div id="game-over-message" class="hidden">
+                <img id="game-over-image" src="gameover.png" alt="Game Over">
+                <button id="restart-button">もう一度遊ぶ</button>
+            </div>
         </div>
     </div>
 

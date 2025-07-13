@@ -11,12 +11,22 @@ body {
     height: auto; /* 高さ自動調整で縦横比を維持 */
 }
 
+/* ★追加: ゲームコンテナをラップする新しいdivのスタイル★ */
+#game-wrapper {
+    position: relative;
+    width: 800px; /* デスクトップの基準幅 */
+    height: 500px; /* デスクトップの基準高さ */
+    margin: 0 auto; /* デスクトップで中央に配置 */
+    border: 2px solid #333; /* ゲームの枠線 */
+    overflow: hidden; /* コンテンツがはみ出さないように */
+}
+
 #game-container {
     position: relative;
-    width: 800px; /* ゲームの表示幅 */
-    height: 500px; /* ゲームの表示高さ */
-    border: 2px solid #333;
-    margin: 0 auto;
+    width: 800px; /* ゲームの表示幅 - 内部の要素の基準となるサイズ */
+    height: 500px; /* ゲームの表示高さ - 内部の要素の基準となるサイズ */
+    /* border: 2px solid #333; /* 枠線は #game-wrapper に移動 */
+    margin: 0 auto; /* 水平方向の中央揃え (デスクトップ用) */
     overflow: hidden;
 
     /* 背景ループのスタイル */
@@ -300,4 +310,71 @@ body {
 
 #cat #combo-display.combo-flash {
     animation: combo-flash 0.3s ease-out;
+}
+
+/* ★追加: モバイルデバイス向けのスタイル調整 (画面幅が768px以下のデバイスに適用) ★ */
+@media (max-width: 768px) {
+    /* ゲーム全体をラップする #game-wrapper をビューポート幅に合わせる */
+    #game-wrapper {
+        width: 100vw; /* ビューポートの横幅いっぱいに */
+        /* 縦横比 (800:500) を維持して高さを計算 */
+        height: calc(100vw * (500 / 800));
+        margin: 0 auto; /* 中央揃え */
+        border: none; /* スケール時に枠線が太くならないように */
+        overflow: hidden;
+    }
+
+    /* #game-container の中身全体を #game-wrapper のサイズに合わせて拡大縮小 */
+    #game-container {
+        transform-origin: top left; /* 左上を基準に拡大縮小 */
+        transform: scale(calc(100vw / 800)); /* スケールファクター = (現在のビューポート幅 / 元のゲーム幅) */
+    }
+
+    /* 各要素のモバイル表示調整 */
+    #game-title-logo {
+        max-width: 90%; /* ロゴを画面幅に合わせて縮小 */
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
+
+    #info-bar {
+        font-size: 12px; /* 情報バーの文字サイズを小さく */
+        top: 5px;
+        width: 95%;
+    }
+
+    #info-bar span {
+        font-size: 1.2em; /* スコアなどの数字は比較的大きく保つ */
+    }
+
+    #game-description {
+        width: 90vw; /* 説明文の幅を調整 */
+        margin: 10px auto;
+        padding: 10px;
+        font-size: 0.9em;
+    }
+
+    #game-description h2 {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+
+    #game-description p {
+        font-size: 0.85em;
+        margin-bottom: 5px;
+    }
+
+    .icon-small {
+        width: 30px; /* アイコンを小さく */
+        height: 20px;
+        margin-right: 5px;
+    }
+
+    #jump-button {
+        width: 90vw; /* ジャンプボタンを横幅いっぱいに */
+        height: auto;
+        padding: 20px 0; /* タッチしやすいパディングに */
+        font-size: 2em; /* フォントサイズを調整 */
+        margin-top: 10px;
+    }
 }
