@@ -320,3 +320,17 @@ body {
 #cat #combo-display.combo-flash {
     animation: combo-flash 0.3s ease-out;
 }
+
+/* ★ここから追加★ */
+
+/* 星のスタイル */
+.star {
+    position: absolute;
+    width: 60px; /* 星の幅 */
+    height: 60px; /* 星の高さ */
+    background-image: url("star.png"); /* 星の画像パス (要準備) */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 20; /* 魚や缶より手前に表示 */
+}

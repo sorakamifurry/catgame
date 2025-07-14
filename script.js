@@ -1,3 +1,4 @@
+// script.js
 document.addEventListener('DOMContentLoaded', () => {
     // HTML要素の取得
     const gameContainer = document.getElementById('game-container');
@@ -11,40 +12,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const birdHitSound = document.getElementById('bird-hit-sound');
     const jumpSound = document.getElementById('jump-sound');
     const countdownSound = document.getElementById('countdown-sound');
-    const gameOverWhistle = document.getElementById('game-over-whistle'); // 正しいIDに戻しました
+    const gameOverWhistle = document.getElementById('game-over-whistle');
     const gameBGM = document.getElementById('game-bgm');
+    // bonusTextElement の取得は不要になったため削除しました
 
-// 音量を設定する関数
-function setVolumesHalf() {
-    const targetVolume = 0.4; // 半分の音量 (50%) に設定
+    // 音量を設定する関数
+    function setVolumesHalf() {
+        const targetVolume = 0.4; // 半分の音量 (50%) に設定
 
-    if (gameBGM) {
-        gameBGM.volume = targetVolume;
+        if (gameBGM) {
+            gameBGM.volume = targetVolume;
+        }
+        if (fishCollectSound) {
+            fishCollectSound.volume = targetVolume;
+        }
+        if (birdHitSound) {
+            birdHitSound.volume = targetVolume;
+        }
+        if (jumpSound) {
+            jumpSound.volume = targetVolume;
+        }
+        if (countdownSound) {
+            countdownSound.volume = targetVolume;
+        }
+        if (gameOverWhistle) {
+            gameOverWhistle.volume = targetVolume;
+        }
     }
-    if (fishCollectSound) {
-        fishCollectSound.volume = targetVolume;
-    }
-    if (birdHitSound) {
-        birdHitSound.volume = targetVolume;
-    }
-    if (jumpSound) {
-        jumpSound.volume = targetVolume;
-    }
-    if (countdownSound) {
-        countdownSound.volume = targetVolume;
-    }
-    if (gameOverWhistle) {
-        gameOverWhistle.volume = targetVolume;
-    }
-}
-// ★ここまで追加★
 
-    // ★追加: モバイルデバイスかどうかを判定する関数★
+    // モバイルデバイスかどうかを判定する関数
     function isMobileDevice() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
-    // ★追加: モバイルデバイスの場合はオーディオ再生を無効にするフラグ★
+    // モバイルデバイスの場合はオーディオ再生を無効にするフラグ
     const disableAudio = isMobileDevice();
     if (disableAudio) {
         console.log("モバイルデバイスを検出しました。BGMと効果音を無効にします。");
@@ -78,11 +79,17 @@ function setVolumesHalf() {
     const SPAWN_X = 800;
     const CONTAINER_HEIGHT = 500;
 
-    // ★再追加: コンボシステム用の変数★
+    // コンボシステム用の変数
     let currentCombo = 0;
     let comboTimerId;
     const COMBO_TIMEOUT = 1000; // 1秒以内に次の魚を取らないとコンボが途切れる
     let comboDisplayElement; // コンボ表示用のDOM要素
+
+    let isBonusMode = false; // ボーナスモードの状態を管理
+    let bonusModeTimerId; // ボーナスモードのタイマーID
+    const BONUS_MODE_DURATION = 5000; // ボーナスモードの持続時間 (ミリ秒)
+    const STAR_SPAWN_CHANCE = 0.005; // 星の出現確率 (0.001 = 0.1%)
+    // bonusAnimationInProgress は不要になったため削除しました
 
     function getItemDimensions(type) {
         switch (type) {
@@ -93,6 +100,7 @@ function setVolumesHalf() {
             case 'blackCan': return { width: 30, height: 40 };
             case 'bird': return { width: 60, height: 40 };
             case 'warning-sign': return { width: 100, height: 100 };
+            case 'star': return { width: 60, height: 60 }; // 星のサイズ
             default: return { width: 0, height: 0 };
         }
     }
@@ -171,7 +179,7 @@ function setVolumesHalf() {
         cat.style.bottom = catBottom + 'px';
         gameContainer.appendChild(cat);
 
-        // ★再追加: コンボ表示要素を生成し、猫の子要素として追加★
+        // コンボ表示要素を生成し、猫の子要素として追加
         comboDisplayElement = document.createElement('div');
         comboDisplayElement.id = 'combo-display';
         comboDisplayElement.classList.add('hidden'); // 最初は非表示
@@ -191,7 +199,7 @@ function setVolumesHalf() {
 
         cat.classList.add('cat-jump');
 
-        // ★修正: disableAudioがfalseの場合のみジャンプ音を再生★
+        // disableAudioがfalseの場合のみジャンプ音を再生
         if (!disableAudio && jumpSound) {
             jumpSound.currentTime = 0;
             jumpSound.play().catch(e => console.error("ジャンプ音の再生に失敗しました:", e));
@@ -415,7 +423,7 @@ function setVolumesHalf() {
         }, 1000);
     }
 
-    // ★再追加: コンボをリセットする関数★
+    // コンボをリセットする関数
     function resetCombo() {
         currentCombo = 0;
         if (comboDisplayElement) {
@@ -429,7 +437,7 @@ function setVolumesHalf() {
         console.log("コンボがリセットされました。");
     }
 
-    // ★再追加: コンボ表示を更新する関数★
+    // コンボ表示を更新する関数
     function updateComboDisplay() {
         if (currentCombo > 0) {
             comboDisplayElement.innerText = currentCombo + ' COMBO!';
@@ -445,7 +453,7 @@ function setVolumesHalf() {
 
     function gameOver() {
         isGameOver = true;
-        // ★修正: disableAudioがfalseの場合のみ効果音を再生★
+        // disableAudioがfalseの場合のみ効果音を再生
         if (!disableAudio) {
             gameOverWhistle.play();
             gameBGM.pause();
@@ -460,8 +468,12 @@ function setVolumesHalf() {
         if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
 
-        // ★再追加: ゲームオーバー時にコンボをリセット★
+        // ゲームオーバー時にコンボをリセット
         resetCombo();
+
+        // ボーナスモード中のタイマーもクリア
+        if (bonusModeTimerId) clearTimeout(bonusModeTimerId);
+        isBonusMode = false; // ボーナスモードも終了
 
         if (score > highScore) {
             highScore = score;
@@ -474,7 +486,7 @@ function setVolumesHalf() {
         const gameOverImageElement = document.createElement('img');
         gameOverImageElement.id = 'game-over-image';
         
-        // ★ここから修正: スコアによる画像切り替えロジックは維持★
+        // スコアによる画像切り替えロジックは維持
         if (score >= 4000) {
             gameOverImageElement.src = 'gameover_high_score.png'; // 4000点以上の場合の画像
             console.log("高スコアゲームオーバー画像を表示します。");
@@ -482,10 +494,169 @@ function setVolumesHalf() {
             gameOverImageElement.src = 'gameover.png'; // 通常のゲームオーバー画像
             console.log("通常のゲームオーバー画像を表示します。");
         }
-        // ★ここまで修正★
 
         gameOverMessage.insertBefore(gameOverImageElement, restartButton);
     }
+
+    function generateStar() {
+        const star = document.createElement('div');
+        star.classList.add('star');
+        const newStarDimensions = getItemDimensions('star');
+        const proposedBottom = findNonOverlappingBottom(newStarDimensions.width, newStarDimensions.height);
+
+        const starData = {
+            element: star,
+            type: 'star',
+            left: SPAWN_X,
+            bottom: proposedBottom
+        };
+        star.style.left = starData.left + 'px';
+        star.style.bottom = starData.bottom + 'px';
+        gameContainer.appendChild(star);
+        fishAndBlocks.push(starData);
+        console.log("星が生成されました。");
+    }
+
+    function startBonusMode() {
+        console.log("startBonusMode: 関数が呼び出されました。");
+        if (isBonusMode) { // bonusAnimationInProgress の条件を削除
+            console.log("startBonusMode: 既にボーナスモード中です。処理をスキップします。");
+            return;
+        }
+
+        console.log("startBonusMode: ボーナスモードを開始します！");
+        isBonusMode = true;
+        isFishAttractionActive = true;
+
+        clearInterval(speedTimerId);
+        if (fishGeneratorId) clearTimeout(fishGeneratorId);
+
+        // BONUS!! アニメーションに関する記述は全て削除しました
+
+        // ボーナスモード中のアイテム生成ロジック
+        (function bonusFishGenerator() {
+            if (!isBonusMode || isGameOver) return;
+
+            // 画面を埋め尽くすように魚を生成
+            for (let i = 0; i < 20; i++) { // 一度に生成する魚の数を増やす
+                const randomY = Math.random() * (CONTAINER_HEIGHT - getItemDimensions('fish').height);
+                setTimeout(() => {
+                    generateFish(randomY);
+                }, i * 50); // より短い間隔で生成
+            }
+
+            // ボーナスモード中は高速で魚を生成し続ける
+            fishGeneratorId = setTimeout(bonusFishGenerator, 200); // 魚の生成間隔を短縮
+        })();
+
+        // ボーナスモードの終了タイマーを設定
+        bonusModeTimerId = setTimeout(() => {
+            endBonusMode();
+        }, BONUS_MODE_DURATION);
+    }
+
+    function endBonusMode() {
+        console.log("ボーナスモード終了。");
+        isBonusMode = false;
+        isFishAttractionActive = false; // 魚吸収を無効化
+        
+        // 残っているボーナスモード中の魚を消去
+        fishAndBlocks = fishAndBlocks.filter(item => {
+            if (item.type === 'fish' && gameContainer.contains(item.element)) {
+                gameContainer.removeChild(item.element);
+                return false;
+            }
+            return true;
+        });
+
+        // 通常のアイテム生成を再開
+        startGameLoopTimers();
+        resetCombo(); // ボーナスモード終了時にコンボをリセット
+    }
+
+    // ゲームループ開始時に呼ばれるタイマー設定関数
+    function startGameLoopTimers() {
+        // 既存のタイマーがあればクリア
+        if (speedTimerId) clearInterval(speedTimerId);
+        if (fishGeneratorId) clearTimeout(fishGeneratorId);
+
+        // 通常のアイテム生成ロジック
+        (function generateItems() {
+            if (isGameOver || isBonusMode) return;
+
+            // 魚の生成
+            for (let i = 0; i < fishSpawnCount; i++) {
+                setTimeout(() => {
+                    generateFish();
+                }, i * fishGroupInterval);
+            }
+
+            // アイテムと鳥の生成（ボーナスモード中は生成しない）
+            if (!isBonusMode) {
+                if (Math.random() > 0.4) {
+                    generateBlock();
+                }
+
+                if (Math.random() > 0.7) {
+                    generateCan();
+                }
+
+                if (Math.random() > 0.85) {
+                    generateYellowCan();
+                }
+
+                if (Math.random() > 0.95) {
+                    generateBlackCan();
+                }
+
+                if (Math.random() > 0.88) { // 鳥の出現確率
+                    const birdDimensions = getItemDimensions('bird');
+                    const birdBottomPos = findNonOverlappingBottom(birdDimensions.width, birdDimensions.height);
+
+                    generateWarningSign(birdBottomPos);
+
+                    setTimeout(() => {
+                        generateBird(birdBottomPos);
+                    }, 2000); // 警告サインの後に鳥を生成
+                }
+            }
+
+            // 星の生成 (ごくまれに出現)
+            if (!isBonusMode && Math.random() < STAR_SPAWN_CHANCE) {
+                generateStar();
+            }
+
+            let baseDelay = 300;
+            if (timeLeft <= 10) {
+                baseDelay = 200;
+            } else if (timeLeft <= 5) {
+                baseDelay = 100;
+            } else if (timeLeft <= 2) {
+                baseDelay = 50;
+            }
+
+            let nextGenerateDelay = Math.random() * 500 + baseDelay;
+            if (fishSpawnCount > 1) {
+                nextGenerateDelay += (fishSpawnCount - 1) * fishGroupInterval;
+            }
+            nextGenerateDelay = Math.max(nextGenerateDelay, 50); // 最低遅延
+
+            fishGeneratorId = setTimeout(generateItems, nextGenerateDelay);
+        })();
+
+        // スピードアップタイマー
+        speedTimerId = setInterval(() => {
+            if (!isGameOver && !isBonusMode) { // ボーナスモード中はスピードアップしない
+                gameSpeed += 2;
+                const speedIncreaseThreshold = 8;
+                if (gameSpeed - lastFishSpawnSpeedIncrease >= speedIncreaseThreshold) {
+                    fishSpawnCount++;
+                    lastFishSpawnSpeedIncrease = gameSpeed;
+                }
+            }
+        }, 4000);
+    }
+
 
     function gameLoop() {
         if (isGameOver) return;
@@ -515,7 +686,7 @@ function setVolumesHalf() {
                     const dy = catCenterY - fishCenterY;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    const attractionSpeed = (gameSpeed + 2);
+                    const attractionSpeed = (gameSpeed + 2); // 吸い寄せ速度
                     const attractionStopDistance = Math.max(catRect.width / 2, fishDimensions.width / 2) + 10;
 
                     if (distance > attractionStopDistance) {
@@ -563,7 +734,7 @@ function setVolumesHalf() {
                     fishAndBlocks.splice(index, 1);
                     score++;
 
-                    // ★再追加: コンボ処理★
+                    // コンボ処理
                     currentCombo++;
                     if (comboTimerId) {
                         clearTimeout(comboTimerId);
@@ -577,7 +748,7 @@ function setVolumesHalf() {
                     comboTimerId = setTimeout(resetCombo, COMBO_TIMEOUT); // コンボタイムアウトを設定
 
                     scoreDisplay.innerText = score;
-                    // ★修正: disableAudioがfalseの場合のみ効果音を再生★
+                    // disableAudioがfalseの場合のみ効果音を再生
                     if (!disableAudio && fishCollectSound) {
                         fishCollectSound.currentTime = 0;
                         fishCollectSound.play().catch(e => console.error("効果音の再生に失敗しました:", e));
@@ -630,10 +801,16 @@ function setVolumesHalf() {
                     }, BLACK_CAN_BOOST_DURATION);
                     resetCombo(); // 魚以外のアイテムを取ったらコンボリセット
                 }
+                else if (item.type === 'star') {
+                    gameContainer.removeChild(item.element);
+                    fishAndBlocks.splice(index, 1);
+                    startBonusMode(); // 星を取ったらボーナスモード開始
+                    resetCombo(); // 星を取ったらコンボリセット
+                }
                 else if (item.type === 'bird') {
                     gameContainer.removeChild(item.element);
                     fishAndBlocks.splice(index, 1);
-                    // ★修正: disableAudioがfalseの場合のみ効果音を再生★
+                    // disableAudioがfalseの場合のみ効果音を再生
                     if (!disableAudio && birdHitSound) {
                         birdHitSound.currentTime = 0;
                         birdHitSound.play().catch(e => console.error("鳥の効果音の再生に失敗しました:", e));
@@ -685,18 +862,22 @@ function setVolumesHalf() {
     function startGame() {
         console.log("--- startGameが呼び出されました ---");
 
-    // ★追加: ゲーム開始時に音量を半分に設定する関数を呼び出す
-    setVolumesHalf(); 
+        // ゲーム開始時に音量を半分に設定する関数を呼び出す
+        setVolumesHalf(); 
 
         isGameOver = false;
         isJumping = false;
         score = 0;
         gameSpeed = 5;
-        timeLeft = 30; // ★修正済: 残り時間を40秒に設定★
+        timeLeft = 30; // 残り時間を40秒に設定
         timeLeftDisplay.innerText = timeLeft;
         scoreDisplay.innerText = 0;
 
         gameOverMessage.style.display = 'none';
+
+        // BONUS!! テキストに関するリセットは不要になったため削除しました
+        isBonusMode = false;
+        if (bonusModeTimerId) clearTimeout(bonusModeTimerId);
 
         fishAndBlocks.forEach(item => {
             if (item.element && gameContainer.contains(item.element)) {
@@ -706,7 +887,7 @@ function setVolumesHalf() {
         fishAndBlocks = [];
 
         if (cat && gameContainer.contains(cat)) {
-            // ★再追加: 猫要素を削除する前にコンボ表示要素も削除★
+            // 猫要素を削除する前にコンボ表示要素も削除
             if (comboDisplayElement && cat.contains(comboDisplayElement)) {
                 cat.removeChild(comboDisplayElement);
             }
@@ -734,19 +915,17 @@ function setVolumesHalf() {
         }
 
         if (gameTimerId) clearInterval(gameTimerId);
-        if (speedTimerId) clearInterval(speedTimerId);
-        if (fishGeneratorId) clearTimeout(fishGeneratorId);
         if (cat && cat.upTimerId) clearInterval(cat.upTimerId);
         if (cat && cat.downTimerId) clearInterval(cat.downTimerId);
 
-        // ★再追加: スタート時にコンボをリセット★
+        // スタート時にコンボをリセット
         resetCombo();
 
         createCat();
         catBottom = -85;
         if (cat) cat.style.bottom = catBottom + 'px';
 
-        // ★修正: disableAudioがfalseの場合のみBGMを再生★
+        // disableAudioがfalseの場合のみBGMを再生
         if (!disableAudio) {
             gameBGM.play().catch(error => {
                 console.log("BGMの再生に失敗しました:", error);
@@ -784,14 +963,14 @@ function setVolumesHalf() {
             timeLeft--;
             timeLeftDisplay.innerText = timeLeft;
 
-            // ★修正: disableAudioがfalseの場合のみカウントダウン音を鳴らす★
+            // disableAudioがfalseの場合のみカウントダウン音を鳴らす
             if (!disableAudio && timeLeft <= 10 && timeLeft > 0 && countdownSound) {
                 countdownSound.currentTime = 0;
                 countdownSound.play().catch(e => console.error("カウントダウン音の再生に失敗しました:", e));
             }
 
-            // ★追加済: 残り10秒以下で魚吸収を有効化★
-            if (timeLeft <= 10) {
+            // 残り10秒以下で魚吸収を有効化 (ボーナスモード中は常に有効なので追加条件)
+            if (timeLeft <= 10 && !isBonusMode) {
                 isFishAttractionActive = true;
                 console.log("残り時間10秒以下：魚の吸い寄せ効果を有効にしました。");
             }
@@ -811,73 +990,11 @@ function setVolumesHalf() {
             }
         }, 1000);
 
-        speedTimerId = setInterval(() => {
-            if (!isGameOver) {
-                gameSpeed += 2;
-                const speedIncreaseThreshold = 8;
-                if (gameSpeed - lastFishSpawnSpeedIncrease >= speedIncreaseThreshold) {
-                    fishSpawnCount++;
-                    lastFishSpawnSpeedIncrease = gameSpeed;
-                }
-            }
-        }, 4000);
-
-        (function generateItems() {
-            if (isGameOver) return;
-
-            for (let i = 0; i < fishSpawnCount; i++) {
-                setTimeout(() => {
-                    generateFish();
-                }, i * fishGroupInterval);
-            }
-
-            if (Math.random() > 0.4) {
-                generateBlock();
-            }
-
-            if (Math.random() > 0.7) {
-                generateCan();
-            }
-
-            if (Math.random() > 0.85) {
-                generateYellowCan();
-            }
-
-            if (Math.random() > 0.95) {
-                generateBlackCan();
-            }
-
-            if (Math.random() > 0.88) {
-                const birdDimensions = getItemDimensions('bird');
-                const birdBottomPos = findNonOverlappingBottom(birdDimensions.width, birdDimensions.height);
-
-                generateWarningSign(birdBottomPos);
-
-                setTimeout(() => {
-                    generateBird(birdBottomPos);
-                }, 2000);
-            }
-
-            let baseDelay = 300;
-            if (timeLeft <= 10) {
-                baseDelay = 200;
-            } else if (timeLeft <= 5) {
-                baseDelay = 100;
-            } else if (timeLeft <= 2) {
-                baseDelay = 50;
-            }
-
-            let nextGenerateDelay = Math.random() * 500 + baseDelay;
-            if (fishSpawnCount > 1) {
-                nextGenerateDelay += (fishSpawnCount - 1) * fishGroupInterval;
-            }
-            nextGenerateDelay = Math.max(nextGenerateDelay, 50);
-
-            fishGeneratorId = setTimeout(generateItems, nextGenerateDelay);
-        })();
+        // 通常のアイテム生成とスピードアップをstartGameLoopTimers関数で呼び出す
+        startGameLoopTimers();
     }
 
-    // ★修正: disableAudioがfalseの場合のみBGM再生リスナーを設定★
+    // disableAudioがfalseの場合のみBGM再生リスナーを設定
     if (!disableAudio) {
         const playBGMOnFirstInteraction = () => {
             if (!hasInteracted) {
