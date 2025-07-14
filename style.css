@@ -94,6 +94,25 @@ body {
     animation: cat-run 0.5s steps(8) infinite; 
 }
 
+/* ★ここから追加★ */
+/* ジャンプアニメーション用のクラス */
+#cat.cat-jump {
+    background-image: url('cat_jump_animation.png'); /* ジャンプ時の画像 */
+    background-size: 750px auto; /* 3フレーム * 250px = 750px */
+    animation: cat-jump-anim 0.1s steps(3) infinite; /* ジャンプアニメーション */
+    /* forwards: アニメーションの最後の状態を維持 */
+}
+
+@keyframes cat-jump-anim {
+    from {
+        background-position: 0px 0px;
+    }
+    to {
+        background-position: -750px 0px; /* 3フレームの合計幅 */
+    }
+}
+/* ★ここまで追加★ */
+
 .fish {
     position: absolute;
     width: 50px;

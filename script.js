@@ -14,6 +14,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameOverWhistle = document.getElementById('game-over-whistle'); // 正しいIDに戻しました
     const gameBGM = document.getElementById('game-bgm');
 
+// 音量を設定する関数
+function setVolumesHalf() {
+    const targetVolume = 0.4; // 半分の音量 (50%) に設定
+
+    if (gameBGM) {
+        gameBGM.volume = targetVolume;
+    }
+    if (fishCollectSound) {
+        fishCollectSound.volume = targetVolume;
+    }
+    if (birdHitSound) {
+        birdHitSound.volume = targetVolume;
+    }
+    if (jumpSound) {
+        jumpSound.volume = targetVolume;
+    }
+    if (countdownSound) {
+        countdownSound.volume = targetVolume;
+    }
+    if (gameOverWhistle) {
+        gameOverWhistle.volume = targetVolume;
+    }
+}
+// ★ここまで追加★
+
     // ★追加: モバイルデバイスかどうかを判定する関数★
     function isMobileDevice() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -164,6 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
         jumpCount++;
         console.log("jump(): ジャンプ実行。jumpCountが", jumpCount, "になりました。");
 
+        cat.classList.add('cat-jump');
+
         // ★修正: disableAudioがfalseの場合のみジャンプ音を再生★
         if (!disableAudio && jumpSound) {
             jumpSound.currentTime = 0;
@@ -198,6 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 cat.style.bottom = '-85px';
                 jumpCount = 0;
                 console.log("fall(): 地面に着地。jumpCountを", jumpCount, "にリセットしました。");
+
+                cat.classList.remove('cat-jump');
                 return;
             }
 
@@ -232,6 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         cat.style.bottom = catBottom + 'px';
                         jumpCount = 0;
                         console.log("fall(): ブロックに着地。jumpCountを", jumpCount, "にリセットしました。");
+
+                        cat.classList.remove('cat-jump');
                         return;
                     }
                 }
@@ -653,6 +684,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startGame() {
         console.log("--- startGameが呼び出されました ---");
+
+    // ★追加: ゲーム開始時に音量を半分に設定する関数を呼び出す
+    setVolumesHalf(); 
 
         isGameOver = false;
         isJumping = false;
